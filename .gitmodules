@@ -1,15 +1,15 @@
 [submodule "vendor/shinyprofiler"]
 	path = vendor/shinyprofiler
-	url = git@bitbucket.org:orbicsoft/shinyprofiler.git
+	url = https://bitbucket.org/orbicsoft/shinyprofiler.git
 [submodule "vendor/catch"]
 	path = vendor/catch
 	url = https://github.com/philsquared/Catch.git
 [submodule "android/astraapktest"]
 	path = android/astraapktest
-	url = git@bitbucket.org:orbicsoft/sensekitapktest.git
+	url = https://bitbucket.org/orbicsoft/sensekitapktest.git
 [submodule "samples-aux/vs2013"]
 	path = samples-aux/vs2013
-	url = git@bitbucket.org:orbicsoft/sdk-win-thirdparty-bin.git
+	url = https://bitbucket.org/orbicsoft/sdk-win-thirdparty-bin.git
 [submodule "vendor/openni2"]
 	path = vendor/openni2
-	url = git@bitbucket.org:orbicsoft/astra-vendor-openni2.git
+	url = https://bitbucket.org/orbicsoft/astra-vendor-openni2.git
