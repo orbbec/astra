@@ -86,7 +86,7 @@ In order to use a ``FrameListener`` with our example...
           isFinished_ = framesProcessed_ >= maxFramesToProcess_;
       }
 
-      void print_depth_frame(const astra::depthframe& depthFrame) const
+      void print_depth_frame(const astra::DepthFrame& depthFrame) const
       {
           const int frameIndex = depthFrame.frame_index();
           const short middleValue = get_middle_value(depthFrame);
@@ -94,7 +94,7 @@ In order to use a ``FrameListener`` with our example...
           std::printf("Depth frameIndex: %d value: %d \n", frameIndex, middleValue);
       }
 
-      short get_middle_value(const astra::depthframe& depthFrame) const
+      short get_middle_value(const astra::DepthFrame& depthFrame) const
       {
           const int width = depthFrame.width();
           const int height = depthFrame.height();
