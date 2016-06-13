@@ -181,7 +181,7 @@ We've got |sdkname| and the ``StreamSet`` running, and we're listening to depth 
       reader.stream<astra::DepthStream>().start();
 
       const int maxFramesToProcess = 100;
-      depthframeListener listener(maxFramesToProcess);
+      DepthFrameListener listener(maxFramesToProcess);
 
       reader.add_listener(listener);
 
