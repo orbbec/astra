@@ -26,7 +26,7 @@ Before We Begin
    // for std::printf
    #include <cstdio>
 
-   int main(int argc, char** arvg)
+   int main(int argc, char** argv)
    {
       astra::initialize();
 
@@ -134,7 +134,7 @@ In order to use a ``FrameListener`` with our example...
    :lineno-start: 63
    :emphasize-lines: 10,11,13,17
 
-   int main(int argc, char** arvg)
+   int main(int argc, char** argv)
    {
       astra::initialize();
 
@@ -171,7 +171,7 @@ We've got |sdkname| and the ``StreamSet`` running, and we're listening to depth 
    :lineno-start: 63
    :emphasize-lines: 15-17
 
-   int main(int argc, char** arvg)
+   int main(int argc, char** argv)
    {
       astra::initialize();
 
