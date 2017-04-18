@@ -96,14 +96,14 @@ namespace astra {
 #include <type_traits>
 #include <utility>
 
-namespace std {
+namespace astra {
 
 template<class _Ty> struct _Unique_if {
-   typedef unique_ptr<_Ty> _Single_object;
+   typedef std::unique_ptr<_Ty> _Single_object;
 };
 
 template<class _Ty> struct _Unique_if<_Ty[]> {
-   typedef unique_ptr<_Ty[]> _Unknown_bound;
+   typedef std::unique_ptr<_Ty[]> _Unknown_bound;
 };
 
 template<class _Ty, size_t N> struct _Unique_if<_Ty[N]> {
@@ -135,7 +135,7 @@ _VARIADIC_EXPAND_0X(_MAKE_UNIQUE, , , , )
 template<class _Ty, class... Args>
    typename _Unique_if<_Ty>::_Single_object
    make_unique(Args&&... args) {
-      return unique_ptr<_Ty>(new _Ty(std::forward<Args>(args)...));
+      return std::unique_ptr<_Ty>(new _Ty(std::forward<Args>(args)...));
    }
 
 #endif
@@ -146,8 +146,8 @@ template<class _Ty, class... Args>
 template<class _Ty>
    typename _Unique_if<_Ty>::_Unknown_bound
    make_unique(size_t n) {
-      typedef typename remove_extent<_Ty>::type U;
-      return unique_ptr<_Ty>(new U[n]());
+      typedef typename std::remove_extent<_Ty>::type U;
+      return std::unique_ptr<_Ty>(new U[n]());
    }
 
 // template< class T, class... Args >
