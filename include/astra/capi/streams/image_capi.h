@@ -77,28 +77,28 @@ inline void astra_pixelformat_get_bytes_per_pixel(astra_pixel_format_t format,
 {
     switch(format)
     {
-    case astra_pixel_formats::ASTRA_PIXEL_FORMAT_RGB888:
+    case ASTRA_PIXEL_FORMAT_RGB888:
         *bpp = 3;
         break;
-    case astra_pixel_formats::ASTRA_PIXEL_FORMAT_YUV422:
+    case ASTRA_PIXEL_FORMAT_YUV422:
         *bpp = 2;
         break;
-    case astra_pixel_formats::ASTRA_PIXEL_FORMAT_GRAY8:
+    case ASTRA_PIXEL_FORMAT_GRAY8:
         *bpp = 1;
         break;
-    case astra_pixel_formats::ASTRA_PIXEL_FORMAT_GRAY16:
+    case ASTRA_PIXEL_FORMAT_GRAY16:
         *bpp = 2;
         break;
-    case astra_pixel_formats::ASTRA_PIXEL_FORMAT_DEPTH_MM:
+    case ASTRA_PIXEL_FORMAT_DEPTH_MM:
         *bpp = 2;
         break;
-    case astra_pixel_formats::ASTRA_PIXEL_FORMAT_UNKNOWN:
+    case ASTRA_PIXEL_FORMAT_UNKNOWN:
         *bpp = 1;
         break;
-    case astra_pixel_formats::ASTRA_PIXEL_FORMAT_YUYV:
+    case ASTRA_PIXEL_FORMAT_YUYV:
         *bpp = 2;
         break;
-    case astra_pixel_formats::ASTRA_PIXEL_FORMAT_POINT:
+    case ASTRA_PIXEL_FORMAT_POINT:
         *bpp = 12;
         break;
     default:
