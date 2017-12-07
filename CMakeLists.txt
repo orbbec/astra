@@ -19,6 +19,12 @@ set (Astra_VERSION_MINOR 5)
 set (Astra_VERSION_PATCH 0)
 set (Astra_VERSION_BUILD 0)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release"
+    CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." 
+    FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   set(ASTRA_CLANG ON)
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
