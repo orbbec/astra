@@ -21,6 +21,7 @@
 #include <astra_core/capi/astra_types.h>
 #include <astra_core/capi/plugins/astra_plugin_callbacks.h>
 #include <memory>
+#include <stdarg.h>
 
 using CallbackId = size_t;
 
