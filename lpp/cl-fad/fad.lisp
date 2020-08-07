@@ -306,7 +306,7 @@ might be removed instead!  This is currently fixed for SBCL and CCL."
                                     (unless ok
                                       (error "~@<Error deleting ~S: ~A~@:>"
                                              file (unix:get-unix-error-msg errno))))
-                           #+:clisp (ext:delete-dir file)
+                           #+:clisp (ext:delete-directory file)
                            #+:openmcl (cl-fad-ccl:delete-directory file)
                            #+:cormanlisp (win32:delete-directory file)
                            #+:ecl (si:rmdir file)
