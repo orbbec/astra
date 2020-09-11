@@ -1,0 +1,12 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c4bbd21..e59125d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.2)
+ 
+ project (Shiny)
+ 
++add_definitions(-fpic)
+ set(SHINY_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+ 
+ if (NOT ASTRA_SDK_BUILD)

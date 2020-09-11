@@ -1,0 +1,1394 @@
+diff --git a/include/astra_core/plugins/PluginServiceProxy.hpp b/include/astra_core/plugins/PluginServiceProxy.hpp
+index 3390635..8b5a0b7 100644
+--- a/include/astra_core/plugins/PluginServiceProxy.hpp
++++ b/include/astra_core/plugins/PluginServiceProxy.hpp
+@@ -22,6 +22,7 @@
+ #include <cstdarg>
+ #include <cstdio>
+ 
++#include <iostream>
+ namespace astra {
+ 
+     class PluginServiceProxy : public astra_pluginservice_proxy_t
+@@ -152,7 +153,8 @@ namespace astra {
+                        const char* format,
+                        va_list args)
+     {
+-        return astra_pluginservice_proxy_t::log(pluginService, channel, logLevel, fileName, lineNo, func, format, args);
++      //return astra_pluginservice_proxy_t::log(pluginService, channel, logLevel, fileName, lineNo, func, format, args); //< cause crash on terminate
++      return ASTRA_STATUS_SUCCESS;
+     }
+     };
+ }
+diff --git a/src/android/.gitignore b/src/android/.gitignore
+deleted file mode 100644
+index ac3e7ed..0000000
+--- a/src/android/.gitignore
++++ /dev/null
+@@ -1,14 +0,0 @@
+-# Created by https://www.gitignore.io
+-
+-### Gradle ###
+-.gradle
+-build/
+-
+-# Ignore Gradle GUI config
+-gradle-app.setting
+-
+-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+-!gradle-wrapper.jar
+-
+-#jniLibs
+-*.so
+diff --git a/src/android/CMakeLists.txt b/src/android/CMakeLists.txt
+deleted file mode 100644
+index b5ec432..0000000
+--- a/src/android/CMakeLists.txt
++++ /dev/null
+@@ -1,32 +0,0 @@
+-set(JNI_LIB_ROOT "${CMAKE_CURRENT_BINARY_DIR}/lib/")
+-set(JNI_LIB_DESTINATION "${JNI_LIB_ROOT}/armeabi-v7a/")
+-
+-make_directory(${JNI_LIB_DESTINATION})
+-
+-add_custom_target(AstraAndroid ALL
+-  COMMAND ${CMAKE_COMMAND}
+-  -D"INPATH=${CMAKE_SOURCE_DIR}/vendor/openni2/android-armeabi-v7a"
+-  -D"OUTPATH=${JNI_LIB_DESTINATION}"
+-  -D"PATTERN=*.so"
+-  -P "CopyFiles.cmake"
+-  COMMAND ${CMAKE_COMMAND}
+-  -D"INPATH=${CMAKE_BINARY_DIR}/lib/"
+-  -D"OUTPATH=${JNI_LIB_DESTINATION}"
+-  -D"PATTERN=*.so"
+-  -P "CopyFiles.cmake"
+-  COMMAND ${CMAKE_COMMAND}
+-  -D"INPATH=${CMAKE_BINARY_DIR}/bin/Plugins/"
+-  -D"OUTPATH=${JNI_LIB_DESTINATION}"
+-  -D"PATTERN=*.so"
+-  -P "CopyFiles.cmake"
+-  COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew"
+-  "build"
+-  "-q"
+-  "-PoutputBinaryDir=${CMAKE_CURRENT_BINARY_DIR}/build"
+-  "-PandroidNativeApiLevel=${ANDROID_NATIVE_API_LEVEL}"
+-  "-PnativeLibPath=${JNI_LIB_ROOT}"
+-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+-
+-add_dependencies(AstraAndroid astra_jni ${SDK_DEPENDENT_TARGET})
+-
+-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/build/outputs/aar/astra-android-release.aar DESTINATION aar/)
+diff --git a/src/android/CopyFiles.cmake b/src/android/CopyFiles.cmake
+deleted file mode 100644
+index 4a89806..0000000
+--- a/src/android/CopyFiles.cmake
++++ /dev/null
+@@ -1 +0,0 @@
+-file(COPY ${INPATH} DESTINATION ${OUTPATH} FILES_MATCHING PATTERN ${PATTERN})
+diff --git a/src/android/build.gradle b/src/android/build.gradle
+deleted file mode 100644
+index 1601c35..0000000
+--- a/src/android/build.gradle
++++ /dev/null
+@@ -1,39 +0,0 @@
+-group 'com.orbbec.astra.android'
+-version '1.0-SNAPSHOT'
+-
+-buildscript {
+-    repositories {
+-        jcenter()
+-    }
+-
+-    dependencies {
+-        classpath 'com.android.tools.build:gradle:1.1.3'
+-    }
+-
+-    buildDir = outputBinaryDir
+-}
+-
+-apply plugin: 'com.android.library'
+-
+-android {
+-    compileSdkVersion androidNativeApiLevel.toInteger()
+-    buildToolsVersion "22.0.1"
+-
+-    compileOptions {
+-        sourceCompatibility JavaVersion.VERSION_1_7
+-        targetCompatibility JavaVersion.VERSION_1_7
+-    }
+-
+-    sourceSets {
+-        main {
+-            jniLibs.srcDir nativeLibPath
+-        }
+-    }
+-}
+-
+-sourceCompatibility = 1.7
+-targetCompatibility = 1.7
+-
+-repositories {
+-    mavenCentral()
+-}
+\ No newline at end of file
+diff --git a/src/android/gradle/wrapper/gradle-wrapper.jar b/src/android/gradle/wrapper/gradle-wrapper.jar
+deleted file mode 100644
+index 2322723..0000000
+Binary files a/src/android/gradle/wrapper/gradle-wrapper.jar and /dev/null differ
+diff --git a/src/android/gradle/wrapper/gradle-wrapper.properties b/src/android/gradle/wrapper/gradle-wrapper.properties
+deleted file mode 100644
+index b18a390..0000000
+--- a/src/android/gradle/wrapper/gradle-wrapper.properties
++++ /dev/null
+@@ -1,6 +0,0 @@
+-#Tue Jun 09 12:33:31 EDT 2015
+-distributionBase=GRADLE_USER_HOME
+-distributionPath=wrapper/dists
+-zipStoreBase=GRADLE_USER_HOME
+-zipStorePath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-2.2-bin.zip
+diff --git a/src/android/gradlew b/src/android/gradlew
+deleted file mode 100755
+index 91a7e26..0000000
+--- a/src/android/gradlew
++++ /dev/null
+@@ -1,164 +0,0 @@
+-#!/usr/bin/env bash
+-
+-##############################################################################
+-##
+-##  Gradle start up script for UN*X
+-##
+-##############################################################################
+-
+-# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+-DEFAULT_JVM_OPTS=""
+-
+-APP_NAME="Gradle"
+-APP_BASE_NAME=`basename "$0"`
+-
+-# Use the maximum available, or set MAX_FD != -1 to use that value.
+-MAX_FD="maximum"
+-
+-warn ( ) {
+-    echo "$*"
+-}
+-
+-die ( ) {
+-    echo
+-    echo "$*"
+-    echo
+-    exit 1
+-}
+-
+-# OS specific support (must be 'true' or 'false').
+-cygwin=false
+-msys=false
+-darwin=false
+-case "`uname`" in
+-  CYGWIN* )
+-    cygwin=true
+-    ;;
+-  Darwin* )
+-    darwin=true
+-    ;;
+-  MINGW* )
+-    msys=true
+-    ;;
+-esac
+-
+-# For Cygwin, ensure paths are in UNIX format before anything is touched.
+-if $cygwin ; then
+-    [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
+-fi
+-
+-# Attempt to set APP_HOME
+-# Resolve links: $0 may be a link
+-PRG="$0"
+-# Need this for relative symlinks.
+-while [ -h "$PRG" ] ; do
+-    ls=`ls -ld "$PRG"`
+-    link=`expr "$ls" : '.*-> \(.*\)$'`
+-    if expr "$link" : '/.*' > /dev/null; then
+-        PRG="$link"
+-    else
+-        PRG=`dirname "$PRG"`"/$link"
+-    fi
+-done
+-SAVED="`pwd`"
+-cd "`dirname \"$PRG\"`/" >&-
+-APP_HOME="`pwd -P`"
+-cd "$SAVED" >&-
+-
+-CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+-
+-# Determine the Java command to use to start the JVM.
+-if [ -n "$JAVA_HOME" ] ; then
+-    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+-        # IBM's JDK on AIX uses strange locations for the executables
+-        JAVACMD="$JAVA_HOME/jre/sh/java"
+-    else
+-        JAVACMD="$JAVA_HOME/bin/java"
+-    fi
+-    if [ ! -x "$JAVACMD" ] ; then
+-        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+-
+-Please set the JAVA_HOME variable in your environment to match the
+-location of your Java installation."
+-    fi
+-else
+-    JAVACMD="java"
+-    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+-
+-Please set the JAVA_HOME variable in your environment to match the
+-location of your Java installation."
+-fi
+-
+-# Increase the maximum file descriptors if we can.
+-if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
+-    MAX_FD_LIMIT=`ulimit -H -n`
+-    if [ $? -eq 0 ] ; then
+-        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
+-            MAX_FD="$MAX_FD_LIMIT"
+-        fi
+-        ulimit -n $MAX_FD
+-        if [ $? -ne 0 ] ; then
+-            warn "Could not set maximum file descriptor limit: $MAX_FD"
+-        fi
+-    else
+-        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
+-    fi
+-fi
+-
+-# For Darwin, add options to specify how the application appears in the dock
+-if $darwin; then
+-    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
+-fi
+-
+-# For Cygwin, switch paths to Windows format before running java
+-if $cygwin ; then
+-    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
+-    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
+-
+-    # We build the pattern for arguments to be converted via cygpath
+-    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
+-    SEP=""
+-    for dir in $ROOTDIRSRAW ; do
+-        ROOTDIRS="$ROOTDIRS$SEP$dir"
+-        SEP="|"
+-    done
+-    OURCYGPATTERN="(^($ROOTDIRS))"
+-    # Add a user-defined pattern to the cygpath arguments
+-    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
+-        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
+-    fi
+-    # Now convert the arguments - kludge to limit ourselves to /bin/sh
+-    i=0
+-    for arg in "$@" ; do
+-        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
+-        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
+-
+-        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
+-            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
+-        else
+-            eval `echo args$i`="\"$arg\""
+-        fi
+-        i=$((i+1))
+-    done
+-    case $i in
+-        (0) set -- ;;
+-        (1) set -- "$args0" ;;
+-        (2) set -- "$args0" "$args1" ;;
+-        (3) set -- "$args0" "$args1" "$args2" ;;
+-        (4) set -- "$args0" "$args1" "$args2" "$args3" ;;
+-        (5) set -- "$args0" "$args1" "$args2" "$args3" "$args4" ;;
+-        (6) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" ;;
+-        (7) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" ;;
+-        (8) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" ;;
+-        (9) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" "$args8" ;;
+-    esac
+-fi
+-
+-# Split up the JVM_OPTS And GRADLE_OPTS values into an array, following the shell quoting and substitution rules
+-function splitJvmOpts() {
+-    JVM_OPTS=("$@")
+-}
+-eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
+-JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
+-
+-exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+diff --git a/src/android/gradlew.bat b/src/android/gradlew.bat
+deleted file mode 100644
+index aec9973..0000000
+--- a/src/android/gradlew.bat
++++ /dev/null
+@@ -1,90 +0,0 @@
+-@if "%DEBUG%" == "" @echo off
+-@rem ##########################################################################
+-@rem
+-@rem  Gradle startup script for Windows
+-@rem
+-@rem ##########################################################################
+-
+-@rem Set local scope for the variables with windows NT shell
+-if "%OS%"=="Windows_NT" setlocal
+-
+-@rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+-set DEFAULT_JVM_OPTS=
+-
+-set DIRNAME=%~dp0
+-if "%DIRNAME%" == "" set DIRNAME=.
+-set APP_BASE_NAME=%~n0
+-set APP_HOME=%DIRNAME%
+-
+-@rem Find java.exe
+-if defined JAVA_HOME goto findJavaFromJavaHome
+-
+-set JAVA_EXE=java.exe
+-%JAVA_EXE% -version >NUL 2>&1
+-if "%ERRORLEVEL%" == "0" goto init
+-
+-echo.
+-echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+-echo.
+-echo Please set the JAVA_HOME variable in your environment to match the
+-echo location of your Java installation.
+-
+-goto fail
+-
+-:findJavaFromJavaHome
+-set JAVA_HOME=%JAVA_HOME:"=%
+-set JAVA_EXE=%JAVA_HOME%/bin/java.exe
+-
+-if exist "%JAVA_EXE%" goto init
+-
+-echo.
+-echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME%
+-echo.
+-echo Please set the JAVA_HOME variable in your environment to match the
+-echo location of your Java installation.
+-
+-goto fail
+-
+-:init
+-@rem Get command-line arguments, handling Windowz variants
+-
+-if not "%OS%" == "Windows_NT" goto win9xME_args
+-if "%@eval[2+2]" == "4" goto 4NT_args
+-
+-:win9xME_args
+-@rem Slurp the command line arguments.
+-set CMD_LINE_ARGS=
+-set _SKIP=2
+-
+-:win9xME_args_slurp
+-if "x%~1" == "x" goto execute
+-
+-set CMD_LINE_ARGS=%*
+-goto execute
+-
+-:4NT_args
+-@rem Get arguments from the 4NT Shell from JP Software
+-set CMD_LINE_ARGS=%$
+-
+-:execute
+-@rem Setup the command line
+-
+-set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
+-
+-@rem Execute Gradle
+-"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %CMD_LINE_ARGS%
+-
+-:end
+-@rem End local scope for the variables with windows NT shell
+-if "%ERRORLEVEL%"=="0" goto mainEnd
+-
+-:fail
+-rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
+-rem the _cmd.exe /c_ return code!
+-if  not "" == "%GRADLE_EXIT_CONSOLE%" exit 1
+-exit /b 1
+-
+-:mainEnd
+-if "%OS%"=="Windows_NT" endlocal
+-
+-:omega
+diff --git a/src/android/settings.gradle b/src/android/settings.gradle
+deleted file mode 100644
+index 76d9c10..0000000
+--- a/src/android/settings.gradle
++++ /dev/null
+@@ -1,2 +0,0 @@
+-rootProject.name = 'astra-android'
+-
+diff --git a/src/android/src/main/AndroidManifest.xml b/src/android/src/main/AndroidManifest.xml
+deleted file mode 100644
+index 32c99d6..0000000
+--- a/src/android/src/main/AndroidManifest.xml
++++ /dev/null
+@@ -1,7 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.orbbec.AstraAndroid"
+-          android:versionCode="1"
+-          android:versionName="1.0" >
+-    <uses-sdk android:minSdkVersion="19" />
+-</manifest>
+diff --git a/src/android/src/main/java/com/orbbec/astra/AstraContext.java b/src/android/src/main/java/com/orbbec/astra/AstraContext.java
+deleted file mode 100644
+index dd4779b..0000000
+--- a/src/android/src/main/java/com/orbbec/astra/AstraContext.java
++++ /dev/null
+@@ -1,99 +0,0 @@
+-package com.orbbec.astra;
+-
+-import android.content.BroadcastReceiver;
+-import android.content.Context;
+-import android.content.Intent;
+-import android.content.IntentFilter;
+-import android.hardware.usb.UsbDevice;
+-import android.util.Log;
+-
+-import com.orbbec.jni.Astra;
+-
+-public class AstraContext {
+-
+-    private static final String LOG_TAG = "AstraContext";
+-    private static final String RESOURCE_URI = "RESOURCE_URI";
+-
+-    private final Context androidContext;
+-    private final SensorDeviceManager deviceManager;
+-    private final String RESOURCE_AVAILABLE_INTENT;
+-
+-
+-    public AstraContext(Context androidContext) {
+-        this.androidContext = androidContext;
+-        this.RESOURCE_AVAILABLE_INTENT = androidContext.getPackageName() + ".RESOURCE_AVAILABLE";
+-        this.deviceManager = new SensorDeviceManager(androidContext,
+-                new SensorDeviceManagerListener() {
+-                    @Override
+-                    public void onOpenAllDevicesCompleted(Iterable<UsbDevice> availableDevices) {
+-                        finishInitialization(availableDevices);
+-                    }
+-
+-                    @Override
+-                    public void onOpenDeviceCompleted(UsbDevice device, boolean opened) {
+-                        if (opened) {
+-                            onNewDeviceAvailable(device);
+-                        }
+-                    }
+-                });
+-
+-        IntentFilter filter = new IntentFilter(RESOURCE_AVAILABLE_INTENT);
+-        this.androidContext.registerReceiver(resourceAvailableReceiver, filter);
+-    }
+-
+-    private void onNewDeviceAvailable(UsbDevice device) {
+-        Log.d(LOG_TAG, "Available device: " + device.getDeviceName());
+-    }
+-
+-    private void finishInitialization(Iterable<UsbDevice> availableDevices) {
+-        for(UsbDevice device : availableDevices) {
+-            Log.d(LOG_TAG, "Available device: " + device.getDeviceName());
+-
+-            String deviceName = device.getDeviceName();
+-            String[] pathComponents = deviceName.substring(1).split("/");
+-
+-            if (pathComponents.length == 5
+-                    && pathComponents[2].equals("usb"))
+-            {
+-                int bus = Integer.parseInt(pathComponents[3], 10);
+-                int address = Integer.parseInt(pathComponents[4], 10);
+-
+-                String resourceUri = createAstraResourceUri(
+-                        device.getVendorId(),
+-                        device.getProductId(),
+-                        bus,
+-                        address);
+-
+-                Log.d(LOG_TAG, "device URI: " + resourceUri);
+-                Astra.notify_resource_available(resourceUri);
+-            }
+-        }
+-        Log.d(LOG_TAG, "Finished initialization");
+-    }
+-
+-    private String createAstraResourceUri(int vendorId, int productId, int bus, int address)
+-    {
+-        return "usb/" + vendorId + "/" + productId + "/" + bus + "/" + address;
+-    }
+-
+-    public void initialize() {
+-        Log.d(LOG_TAG, "initializing");
+-        Astra.initialize();
+-        deviceManager.openAllDevices();
+-    }
+-
+-    private final BroadcastReceiver resourceAvailableReceiver = new BroadcastReceiver() {
+-        @Override
+-        public void onReceive(Context context, Intent intent) {
+-            String action = intent.getAction();
+-
+-            if (!RESOURCE_AVAILABLE_INTENT.equals(action)) return;
+-
+-            String resourceUri = intent.getStringExtra(AstraContext.RESOURCE_URI);
+-
+-            synchronized (this) {
+-                Log.d(LOG_TAG, "Resource Available: " + resourceUri);
+-            }
+-        }
+-    };
+-}
+diff --git a/src/android/src/main/java/com/orbbec/astra/AstraDeviceMonitorActivity.java b/src/android/src/main/java/com/orbbec/astra/AstraDeviceMonitorActivity.java
+deleted file mode 100644
+index cc9c685..0000000
+--- a/src/android/src/main/java/com/orbbec/astra/AstraDeviceMonitorActivity.java
++++ /dev/null
+@@ -1,36 +0,0 @@
+-package com.orbbec.astra;
+-
+-import android.app.Activity;
+-import android.content.Intent;
+-import android.hardware.usb.UsbManager;
+-import android.os.Bundle;
+-import android.os.Parcelable;
+-
+-public class AstraDeviceMonitorActivity extends Activity {
+-
+-    public static final String ACTION_USB_DEVICE_ATTACHED = "com.orbbec.ACTION_USB_DEVICE_ATTACHED";
+-
+-    @Override
+-    public void onCreate(Bundle savedInstanceState) {
+-        super.onCreate(savedInstanceState);
+-    }
+-
+-    @Override
+-    protected void onResume() {
+-        super.onResume();
+-
+-        Intent intent = getIntent();
+-        if (intent == null) return;
+-
+-        String action = intent.getAction();
+-        if (!UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action))
+-            return;
+-
+-        Parcelable usbDeviceParcel = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+-
+-        Intent broadcastIntent = new Intent(ACTION_USB_DEVICE_ATTACHED);
+-        broadcastIntent.putExtra(UsbManager.EXTRA_DEVICE, usbDeviceParcel);
+-
+-        sendBroadcast(broadcastIntent);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/android/src/main/java/com/orbbec/astra/SensorDeviceManager.java b/src/android/src/main/java/com/orbbec/astra/SensorDeviceManager.java
+deleted file mode 100644
+index e7c529f..0000000
+--- a/src/android/src/main/java/com/orbbec/astra/SensorDeviceManager.java
++++ /dev/null
+@@ -1,160 +0,0 @@
+-package com.orbbec.astra;
+-
+-import android.content.BroadcastReceiver;
+-import android.content.Context;
+-import android.content.Intent;
+-import android.content.IntentFilter;
+-import android.hardware.usb.UsbDevice;
+-import android.hardware.usb.UsbManager;
+-import android.util.Log;
+-
+-import java.util.*;
+-
+-public class SensorDeviceManager {
+-
+-    private static final String LOG_TAG = "SensorDeviceManager";
+-    private final Context androidContext;
+-    private final UsbManager usbManager;
+-    private final UsbDeviceAccessBroker usbAccessBroker;
+-    private final HashSet<UsbDeviceInfo> knownDeviceTypes;
+-    private final HashSet<UsbDevice> availableDevices = new HashSet<UsbDevice>();
+-
+-    private final Queue<UsbDevice> requestQueue = new LinkedList<UsbDevice>();
+-
+-    private boolean isOpeningDevices = false;
+-    private SensorDeviceManagerListener listener;
+-
+-    private final UsbDeviceAccessBroker.UsbDeviceAccessEventListener accessListener =
+-            new UsbDeviceAccessBroker.UsbDeviceAccessEventListener() {
+-
+-                @Override
+-                public void onDeviceOpened(UsbDevice device) {
+-                    availableDevices.add(device);
+-                    onDeviceOpenCallback();
+-                }
+-
+-                @Override
+-                public void onDeviceOpenFailed(UsbDevice device) {
+-                    onDeviceOpenCallback();
+-                }
+-
+-                private void onDeviceOpenCallback()
+-                {
+-                    if (requestQueue.isEmpty()) {
+-                        isOpeningDevices = false;
+-                        if (listener != null)
+-                            listener.onOpenAllDevicesCompleted(availableDevices);
+-                    } else {
+-                        usbAccessBroker.open(requestQueue.remove(), accessListener);
+-                    }
+-                }
+-            };
+-
+-
+-
+-    public Iterable<UsbDevice> getAvailableDevices() { return availableDevices; }
+-
+-    public SensorDeviceManager(Context androidContext, SensorDeviceManagerListener listener) {
+-        this.androidContext = androidContext;
+-        this.usbManager = (UsbManager)androidContext.getSystemService(Context.USB_SERVICE);
+-        this.usbAccessBroker = new UsbDeviceAccessBroker(androidContext);
+-        this.listener = listener;
+-
+-        knownDeviceTypes = getKnownDeviceTypes();
+-
+-        IntentFilter filter = new IntentFilter(AstraDeviceMonitorActivity.ACTION_USB_DEVICE_ATTACHED);
+-        androidContext.registerReceiver(new BroadcastReceiver() {
+-            @Override
+-            public void onReceive(Context context, Intent intent) {
+-                if (!intent.getAction().equals(AstraDeviceMonitorActivity.ACTION_USB_DEVICE_ATTACHED))
+-                    return;
+-
+-                UsbDevice usbDevice = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+-
+-                if (!availableDevices.contains(usbDevice)) {
+-                    openDevice(usbDevice);
+-                }
+-
+-            }}, filter);
+-    }
+-
+-    public void openDevice(UsbDevice device) {
+-
+-        if (device == null)
+-            throw new IllegalArgumentException("device");
+-
+-        usbAccessBroker.open(device, new UsbDeviceAccessBroker.UsbDeviceAccessEventListener() {
+-            @Override
+-            public void onDeviceOpened(UsbDevice device) {
+-                availableDevices.add(device);
+-                if (listener != null) {
+-                    listener.onOpenDeviceCompleted(device, true);
+-                }
+-            }
+-
+-            @Override
+-            public void onDeviceOpenFailed(UsbDevice device) {
+-                if (listener != null) {
+-                    listener.onOpenDeviceCompleted(device, false);
+-                }
+-            }
+-        });
+-    }
+-
+-    public void openAllDevices() {
+-
+-        if (isOpeningDevices)
+-            return;
+-
+-        Log.d(LOG_TAG, "opening all devices");
+-        isOpeningDevices = true;
+-
+-        for(UsbDevice device : getConnectedSensorDevices()) {
+-            requestQueue.add(device);
+-        }
+-
+-        if (requestQueue.isEmpty())
+-        {
+-            Log.d(LOG_TAG, "no devices to open");
+-        } else {
+-            usbAccessBroker.open(requestQueue.remove(), accessListener);
+-        }
+-    }
+-
+-    private static HashSet<UsbDeviceInfo> getKnownDeviceTypes() {
+-
+-        HashSet<UsbDeviceInfo> knownDeviceTypes = new HashSet<UsbDeviceInfo>();
+-
+-        //TODO: load these from a config file as well
+-        //ASUS Xtion Pro
+-        knownDeviceTypes.add(new UsbDeviceInfo(0x1d27, 0x0600));
+-
+-        //ASUS Xtion Pro Live
+-        knownDeviceTypes.add(new UsbDeviceInfo(0x1d27, 0x0601));
+-
+-        //Orbbec Astra
+-        knownDeviceTypes.add(new UsbDeviceInfo(0x2bc5, 0x0400));
+-        knownDeviceTypes.add(new UsbDeviceInfo(0x2bc5, 0x0401));
+-        knownDeviceTypes.add(new UsbDeviceInfo(0x2bc5, 0x0402));
+-        knownDeviceTypes.add(new UsbDeviceInfo(0x2bc5, 0x0403));
+-        knownDeviceTypes.add(new UsbDeviceInfo(0x2bc5, 0x0404));
+-        knownDeviceTypes.add(new UsbDeviceInfo(0x2bc5, 0x0405));
+-
+-        return knownDeviceTypes;
+-    }
+-
+-    private Iterable<UsbDevice> getConnectedSensorDevices()
+-    {
+-        ArrayList<UsbDevice> availableDevices = new ArrayList<UsbDevice>();
+-
+-        for(UsbDevice device : usbManager.getDeviceList().values()) {
+-
+-            UsbDeviceInfo info = new UsbDeviceInfo(device.getVendorId(), device.getProductId());
+-            if (knownDeviceTypes.contains(info))
+-                availableDevices.add(device);
+-        }
+-
+-        return availableDevices;
+-    }
+-
+-}
+diff --git a/src/android/src/main/java/com/orbbec/astra/SensorDeviceManagerListener.java b/src/android/src/main/java/com/orbbec/astra/SensorDeviceManagerListener.java
+deleted file mode 100644
+index a715a7d..0000000
+--- a/src/android/src/main/java/com/orbbec/astra/SensorDeviceManagerListener.java
++++ /dev/null
+@@ -1,8 +0,0 @@
+-package com.orbbec.astra;
+-
+-import android.hardware.usb.UsbDevice;
+-
+-public interface SensorDeviceManagerListener {
+-    void onOpenAllDevicesCompleted(Iterable<UsbDevice> availableDevices);
+-    void onOpenDeviceCompleted(UsbDevice device, boolean opened);
+-}
+diff --git a/src/android/src/main/java/com/orbbec/astra/UsbDeviceAccessBroker.java b/src/android/src/main/java/com/orbbec/astra/UsbDeviceAccessBroker.java
+deleted file mode 100644
+index c9a425c..0000000
+--- a/src/android/src/main/java/com/orbbec/astra/UsbDeviceAccessBroker.java
++++ /dev/null
+@@ -1,129 +0,0 @@
+-package com.orbbec.astra;
+-
+-import android.app.PendingIntent;
+-import android.content.BroadcastReceiver;
+-import android.content.Context;
+-import android.content.Intent;
+-import android.content.IntentFilter;
+-import android.hardware.usb.UsbDevice;
+-import android.hardware.usb.UsbManager;
+-import android.util.Log;
+-
+-import java.util.Hashtable;
+-
+-public class UsbDeviceAccessBroker {
+-
+-    private static final String LOG_TAG = "UsbDeviceAccessBroker";
+-
+-    public interface UsbDeviceAccessEventListener {
+-        void onDeviceOpened(UsbDevice device);
+-        void onDeviceOpenFailed(UsbDevice device);
+-    }
+-
+-    private static final String LISTENER_ID = "com.orbbec.LISTENER_ID";
+-
+-    private final String USB_PERMISSION_INTENT;
+-    private final UsbManager usbManager;
+-    private final Context androidContext;
+-
+-    private final Hashtable<Integer, UsbDeviceAccessEventListener> listeners =
+-            new Hashtable<Integer, UsbDeviceAccessEventListener>();
+-
+-    private static int intentId = 0;
+-    private static synchronized int getNextId() { return intentId++; }
+-
+-    private final BroadcastReceiver permissionIntentReceiver = new BroadcastReceiver() {
+-        @Override
+-        public void onReceive(Context context, Intent intent) {
+-
+-            String action = intent.getAction();
+-            if (!USB_PERMISSION_INTENT.equals(action))
+-                return;
+-
+-            synchronized (this) {
+-
+-                int intentInstanceId = intent.getIntExtra(LISTENER_ID, -1);
+-
+-                UsbDeviceAccessEventListener listener = null;
+-
+-                if (intentInstanceId != -1 && listeners.containsKey(intentInstanceId)) {
+-                    listener = listeners.get(intentInstanceId);
+-                    listeners.remove(intentInstanceId);
+-                }
+-
+-                UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+-
+-                boolean permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
+-
+-                Log.d(LOG_TAG,
+-                        "received permission request result for "
+-                                + device.getDeviceName()
+-                                + ", granted: " + permissionGranted);
+-
+-                if (device == null && listener != null) {
+-                    Log.d(LOG_TAG, "notifying listener of device open failure");
+-                    listener.onDeviceOpenFailed(null);
+-                }
+-
+-                if (permissionGranted) {
+-                    Log.d(LOG_TAG, "opening device: " + device.getDeviceName());
+-                    usbManager.openDevice(device);
+-                    Log.d(LOG_TAG, "opened device: " + device.getDeviceName());
+-
+-                    if (listener != null) {
+-                        Log.d(LOG_TAG, "notifying listener of device open success");
+-                        listener.onDeviceOpened(device);
+-                    }
+-                } else {
+-                    if (listener != null) {
+-                        Log.d(LOG_TAG, "notifying listener of device open failure");
+-                        listener.onDeviceOpenFailed(device);
+-                    }
+-
+-                }
+-            }
+-        }
+-    };
+-
+-    public UsbDeviceAccessBroker(Context androidContext) {
+-        this.androidContext = androidContext;
+-        this.usbManager = (UsbManager)androidContext.getSystemService(Context.USB_SERVICE);
+-        this.USB_PERMISSION_INTENT = androidContext.getPackageName() + ".USB_PERMISSION";
+-
+-        IntentFilter filter = new IntentFilter(USB_PERMISSION_INTENT);
+-        androidContext.registerReceiver(permissionIntentReceiver, filter);
+-    }
+-
+-    public void open(UsbDevice device, UsbDeviceAccessEventListener listener) {
+-
+-        if (device == null)
+-            throw new IllegalArgumentException("device");
+-
+-        Log.d(LOG_TAG,"attempting to open: " + device.getDeviceName());
+-
+-        if (usbManager.hasPermission(device)) {
+-            Log.d(LOG_TAG, "opening device: " + device.getDeviceName());
+-            usbManager.openDevice(device);
+-            Log.d(LOG_TAG, "opened device: " + device.getDeviceName());
+-
+-            Log.d(LOG_TAG, "notifying listener of device open success");
+-            listener.onDeviceOpened(device);
+-            return;
+-        }
+-
+-        Intent permissionIntent = new Intent(USB_PERMISSION_INTENT);
+-
+-        if (listener != null) {
+-            int id = getNextId();
+-            Log.d(LOG_TAG, "storing listener ("+ id + ")");
+-            permissionIntent.putExtra(LISTENER_ID, id);
+-
+-            listeners.put(id, listener);
+-        }
+-
+-        Log.d(LOG_TAG, "executing permission request for device: " + device.getDeviceName());
+-
+-        PendingIntent intent = PendingIntent.getBroadcast(androidContext, 0, permissionIntent, 0);
+-        usbManager.requestPermission(device, intent);
+-    }
+-}
+diff --git a/src/android/src/main/java/com/orbbec/astra/UsbDeviceInfo.java b/src/android/src/main/java/com/orbbec/astra/UsbDeviceInfo.java
+deleted file mode 100644
+index 209cbbc..0000000
+--- a/src/android/src/main/java/com/orbbec/astra/UsbDeviceInfo.java
++++ /dev/null
+@@ -1,47 +0,0 @@
+-package com.orbbec.astra;
+-
+-public class UsbDeviceInfo {
+-
+-    private final int vendorId;
+-    private final int productId;
+-
+-    public int getVendorId() {
+-        return vendorId;
+-    }
+-
+-    public int getProductId() {
+-        return productId;
+-    }
+-
+-    public UsbDeviceInfo(int vendorId, int productId) {
+-        this.vendorId = vendorId;
+-        this.productId = productId;
+-    }
+-
+-    @Override
+-    public String toString() {
+-        return "UsbDeviceInfo{" +
+-                "vendorId=" + vendorId +
+-                ", productId=" + productId +
+-                '}';
+-    }
+-
+-    @Override
+-    public boolean equals(Object o) {
+-        if (this == o) return true;
+-        if (o == null || getClass() != o.getClass()) return false;
+-
+-        UsbDeviceInfo that = (UsbDeviceInfo) o;
+-
+-        if (vendorId != that.vendorId) return false;
+-        return productId == that.productId;
+-
+-    }
+-
+-    @Override
+-    public int hashCode() {
+-        int result = vendorId;
+-        result = 31 * result + productId;
+-        return result;
+-    }
+-}
+diff --git a/src/android/src/main/java/com/orbbec/jni/Astra.java b/src/android/src/main/java/com/orbbec/jni/Astra.java
+deleted file mode 100644
+index 695a73a..0000000
+--- a/src/android/src/main/java/com/orbbec/jni/Astra.java
++++ /dev/null
+@@ -1,14 +0,0 @@
+-package com.orbbec.jni;
+-
+-public class Astra {
+-    static {
+-        System.loadLibrary("Astra");
+-        System.loadLibrary("AstraAPI");
+-        System.loadLibrary("AstraUL");
+-        System.loadLibrary("astra_jni");
+-    }
+-    public static native void initialize();
+-    public static native void terminate();
+-    public static native void notify_resource_available(String uri);
+-    public static native void notify_resource_unavailable(String uri);
+-}
+diff --git a/src/astra/CMakeLists.txt b/src/astra/CMakeLists.txt
+index 2a67e77..755d415 100644
+--- a/src/astra/CMakeLists.txt
++++ b/src/astra/CMakeLists.txt
+@@ -52,6 +52,12 @@ add_library(${_projname} SHARED ${${_projname}_SOURCES})
+ 
+ add_definitions(-DASTRA_BUILD_EX)
+ 
++add_library(Shiny SHARED IMPORTED) # or STATIC instead of SHARED
++set_target_properties(Shiny PROPERTIES
++  IMPORTED_LOCATION "/sm3/astra/vendor/shinyprofiler/tets/lib/libShiny.a"
++  INTERFACE_INCLUDE_DIRECTORIES "/sm3/astra/vendor/shinyprofiler/include"
++)
++
+ target_link_libraries(${_projname} astra_core_api Shiny)
+ 
+ include_directories(${_projname} ${SHINY_INCLUDE_DIR})
+diff --git a/src/astra_core/astra_configuration.cpp b/src/astra_core/astra_configuration.cpp
+index 39f3f93..ea3feed 100644
+--- a/src/astra_core/astra_configuration.cpp
++++ b/src/astra_core/astra_configuration.cpp
+@@ -60,55 +60,6 @@ namespace astra {
+ 
+     configuration* configuration::load_from_file(const char* tomlFilePath)
+     {
+-        configuration* config = new configuration();
+-        cpptoml::table t;
+-
+-        try
+-        {
+-            t = cpptoml::parse_file(tomlFilePath);
+-        }
+-        catch (const cpptoml::parse_exception& e)
+-        {
+-            return config;
+-        }
+-
+-        const char* loggingLevelKey = "logging.level";
+-        if (t.contains_qualified(loggingLevelKey))
+-        {
+-            auto logLevel = t.get_qualified(loggingLevelKey)->as<std::string>()->get();
+-            auto severity = convert_string_to_severity(logLevel);
+-
+-            if (severity != ASTRA_SEVERITY_UNKNOWN)
+-            {
+-                config->set_severityLevel(severity);
+-            }
+-        }
+-
+-        const char* outputLogsToConsole = "logging.console_output";
+-        if (t.contains_qualified(outputLogsToConsole))
+-        {
+-            bool consoleOutput = t.get_qualified(outputLogsToConsole)->as<bool>()->get();
+-            config->set_consoleOutput(consoleOutput);
+-        }
+-
+-        const char* outputLogsToFile = "logging.file_output";
+-        if (t.contains_qualified(outputLogsToFile))
+-        {
+-            bool fileOutput = t.get_qualified(outputLogsToFile)->as<bool>()->get();
+-            config->set_fileOutput(fileOutput);
+-        }
+-
+-        const char* pluginsPathKey = "plugins.path";
+-        if (t.contains_qualified(pluginsPathKey))
+-        {
+-            auto pluginsPath = t.get_qualified(pluginsPathKey)->as<std::string>()->get();
+-
+-            if (pluginsPath.length() > 0)
+-            {
+-                config->set_pluginsPath(pluginsPath);
+-            }
+-        }
+-
+-        return config;
++        return new configuration();
+     }
+ }
+diff --git a/src/astra_core/astra_context_impl.cpp b/src/astra_core/astra_context_impl.cpp
+index 034dc68..f2b1722 100644
+--- a/src/astra_core/astra_context_impl.cpp
++++ b/src/astra_core/astra_context_impl.cpp
+@@ -27,6 +27,7 @@
+ #include "astra_configuration.hpp"
+ #include "astra_filesystem.hpp"
+ #include "astra_cxx_compatibility.hpp"
++#include <cstdlib>
+ 
+ INITIALIZE_LOGGING
+ 
+@@ -37,36 +38,30 @@ namespace astra {
+         if (initialized_)
+             return ASTRA_STATUS_SUCCESS;
+ 
+-#if __ANDROID__
+-        std::string appPath = environment::application_path();
+-        std::string logPath = filesystem::combine_paths(appPath, "astra.log");
+-        std::string configPath = filesystem::combine_paths(appPath, "astra.toml");
+-#else
+-        std::string logPath = "astra.log";
+-        std::string configPath = filesystem::combine_paths(environment::lib_path(), "astra.toml");
+-#endif
+ 
+-        std::unique_ptr<configuration> config(configuration::load_from_file(configPath.c_str()));
++        std::string logPath = "/tmp/orbbec.log";
++        auto config = std::make_unique<configuration>();
+         initialize_logging(logPath.c_str(), config->severityLevel(), config->consoleOutput(), config->fileOutput());
+ 
+-        LOG_WARN("context", "Hold on to yer butts");
+-        LOG_INFO("context", "configuration path: %s", configPath.c_str());
+         LOG_INFO("context", "log file path: %s", logPath.c_str());
+ 
+         pluginManager_ = astra::make_unique<plugin_manager>(setCatalog_);
+ 
+-#if !__ANDROID__
+-        std::string pluginsPath = filesystem::combine_paths(environment::lib_path(),
+-                                                            filesystem::append_path_separator(config->pluginsPath()));
+-
++        std::string orbbec_sdk_dir;
++        try
++        {
++            LOG_INFO("context", "Checking ORBBEC_SDK_DIR");
++            orbbec_sdk_dir = std::getenv("ORBBEC_SDK_DIR");
++            LOG_INFO("context", "ORBBEC_SDK_DIR found. Also remember about OPENNI_DIR.");
++        }
++        catch (...)
++        {
++            throw std::runtime_error("Initialize ORBBEC_SDK_DIR enviroment");
++        }
++        const std::string pluginsPath = orbbec_sdk_dir +  "/Plugins/";
+         LOG_INFO("context", "plugin path: %s", pluginsPath.c_str());
+ 
+-        pluginManager_->load_plugins(pluginsPath);
+-#else
+-        pluginManager_->load_plugin("libopenni_sensor.so");
+-        pluginManager_->load_plugin("liborbbec_hand.so");
+-        pluginManager_->load_plugin("liborbbec_xs.so");
+-#endif
++        pluginManager_->load_plugins(pluginsPath.data());
+ 
+         if (pluginManager_->plugin_count() == 0)
+         {
+@@ -85,9 +80,7 @@ namespace astra {
+ 
+         pluginManager_.reset();
+         setCatalog_.clear();
+-
+         initialized_ = false;
+-
+         LOG_INFO("context", "Astra terminated.");
+ 
+         return ASTRA_STATUS_SUCCESS;
+diff --git a/src/plugins/openni_sensor/CMakeLists.txt b/src/plugins/openni_sensor/CMakeLists.txt
+index e6f6c0a..af0e00f 100644
+--- a/src/plugins/openni_sensor/CMakeLists.txt
++++ b/src/plugins/openni_sensor/CMakeLists.txt
+@@ -22,30 +22,16 @@ set(${_projname}_SOURCES
+ 
+ add_definitions(-DASTRA_BUILD)
+ 
+-if (ASTRA_WINDOWS)
+-  if(ASTRA_64)
+-    set(ONI_LIB_DIR $ENV{OPENNI2_LIB64})
+-  else()
+-    set(ONI_LIB_DIR $ENV{OPENNI2_LIB})
+-  endif()
++add_library(Shiny SHARED IMPORTED) # or STATIC instead of SHARED
++set_target_properties(Shiny PROPERTIES
++  IMPORTED_LOCATION "/sm3/astra/vendor/shinyprofiler/tets/lib/libShiny.a"
++  INTERFACE_INCLUDE_DIRECTORIES "/sm3/astra/vendor/shinyprofiler/include"
++)
+ 
+-  message("ONI_LIB_DIR ${ONI_LIB_DIR}")
+-
+-  find_library(OpenNI2_LIBRARY NAMES "OpenNI2.lib" HINTS ${ONI_LIB_DIR} PATH_SUFFIXES lib)
+-elseif (ASTRA_OSX)
+-  find_library(OpenNI2_LIBRARY NAMES "libOpenNI2.dylib" HINTS "${CMAKE_SOURCE_DIR}/vendor/openni2/osx-x64")
+-elseif (ASTRA_UNIX)
+-  find_library(OpenNI2_LIBRARY NAMES "libOpenNI2.so" HINTS "$ENV{OPENNI2_REDIST}" PATH_SUFFIXES lib)
+-elseif (ASTRA_ANDROID)
+-  find_library(OpenNI2_LIBRARY NAMES "libOpenNI2.so" PATHS "${CMAKE_SOURCE_DIR}/vendor/openni2/android-armeabi-v7a" NO_CMAKE_FIND_ROOT_PATH)
+-endif()
++#find_library(OpenNI2_LIBRARY NAMES "libOpenNI2.so" HINTS "$ENV{OPENNI2_REDIST}" PATH_SUFFIXES lib)
+ 
+ #extend the rpath to include the openni2 subdirectory
+-if(ASTRA_OSX)
+-  set(CMAKE_INSTALL_RPATH "@loader_path/..;@loader_path/openni2")
+-elseif(ASTRA_UNIX)
+-  set(CMAKE_INSTALL_RPATH "$ORIGIN/..;$ORIGIN/openni2")
+-endif()
++set(CMAKE_INSTALL_RPATH "$ORIGIN/..;$ORIGIN/openni2")
+ 
+ include_directories ("${CMAKE_SOURCE_DIR}/vendor/openni2/include")
+ 
+@@ -55,6 +41,7 @@ add_library(${_projname} SHARED ${${_projname}_SOURCES} ${${_projname}_HEADERS})
+ 
+ set_target_properties(${_projname} PROPERTIES FOLDER "plugins")
+ 
++set(OpenNI2_LIBRARY /sm3/astra/vendor/openni2/ubuntu-x64/libOpenNI2.so)
+ target_link_libraries(${_projname} astra_core_api Shiny ${OpenNI2_LIBRARY})
+ 
+ install_lib(${_projname} "Plugins/")
+diff --git a/src/plugins/orbbec_hand/CMakeLists.txt b/src/plugins/orbbec_hand/CMakeLists.txt
+index 0ddbb22..12fd7c7 100644
+--- a/src/plugins/orbbec_hand/CMakeLists.txt
++++ b/src/plugins/orbbec_hand/CMakeLists.txt
+@@ -39,6 +39,12 @@ set(ORBBEC_HAND_SRC
+   orbbec_hand.toml
+   )
+ 
++add_library(Shiny SHARED IMPORTED) # or STATIC instead of SHARED
++set_target_properties(Shiny PROPERTIES
++  IMPORTED_LOCATION "/sm3/astra/vendor/shinyprofiler/tets/lib/libShiny.a"
++  INTERFACE_INCLUDE_DIRECTORIES "/sm3/astra/vendor/shinyprofiler/include"
++)
++
+ add_library(${_projname} SHARED ${ORBBEC_HAND_SRC} ${ORBBEC_HAND_INCLUDE})
+ 
+ set_target_properties(${_projname} PROPERTIES FOLDER "plugins")
+diff --git a/src/plugins/orbbec_hand/hnd_settings_parser.cpp b/src/plugins/orbbec_hand/hnd_settings_parser.cpp
+index 2d84775..634fd54 100644
+--- a/src/plugins/orbbec_hand/hnd_settings_parser.cpp
++++ b/src/plugins/orbbec_hand/hnd_settings_parser.cpp
+@@ -43,140 +43,63 @@ namespace astra { namespace hand {
+         return static_cast<int>(value);
+     }
+ 
+-    depth_utility_settings parse_depth_utility_settings(cpptoml::table t)
++    depth_utility_settings parse_depth_utility_settings()
+     {
+         depth_utility_settings settings;
+ 
+-        settings.depthSmoothingFactor = get_float_from_table(t, "depthutility.depthSmoothingFactor", settings.depthSmoothingFactor);
+-        settings.velocityThresholdFactor = get_float_from_table(t, "depthutility.velocityThresholdFactor", settings.velocityThresholdFactor);
+-        settings.maxDepthJumpPercent = get_float_from_table(t, "depthutility.maxDepthJumpPercent", settings.maxDepthJumpPercent);
+-        settings.erodeSize = get_int_from_table(t, "depthutility.erodeSize", settings.erodeSize);
+-        settings.depthAdjustmentFactor = get_float_from_table(t, "depthutility.depthAdjustmentFactor", settings.depthAdjustmentFactor);
+-        settings.minDepth = get_float_from_table(t, "depthutility.minDepth", settings.minDepth);
+-        settings.maxDepth = get_float_from_table(t, "depthutility.maxDepth", settings.maxDepth);
++        settings.depthSmoothingFactor = 0.05;
++        settings.velocityThresholdFactor = 0.005;
++        settings.maxDepthJumpPercent = 0.1;
++        settings.erodeSize = 1;
++        settings.depthAdjustmentFactor = 2.5;
++        settings.minDepth = 200.0;
++        settings.maxDepth = 20000.0;
+ 
+         return settings;
+     }
+ 
+-    point_processor_settings parse_point_processor_settings(cpptoml::table t)
++    point_processor_settings parse_point_processor_settings()
+     {
+-        point_processor_settings settings;
+-
+-        settings.maxMatchDistLostActive = get_float_from_table(t, "pointprocessor.maxMatchDistLostActive", settings.maxMatchDistLostActive);
+-        settings.maxMatchDistDefault = get_float_from_table(t, "pointprocessor.maxMatchDistDefault", settings.maxMatchDistDefault);
+-        settings.steadyDeadBandRadius = get_float_from_table(t, "pointprocessor.steadyDeadBandRadius", settings.steadyDeadBandRadius);
+-        settings.maxInactiveFramesForCandidatePoints = get_int_from_table(t, "pointprocessor.maxInactiveFramesForCandidatePoints", settings.maxInactiveFramesForCandidatePoints);
+-        settings.maxInactiveFramesForLostPoints = get_int_from_table(t, "pointprocessor.maxInactiveFramesForLostPoints", settings.maxInactiveFramesForLostPoints);
+-        settings.maxInactiveFramesForActivePoints = get_int_from_table(t, "pointprocessor.maxInactiveFramesForActivePoints", settings.maxInactiveFramesForActivePoints);
+-        settings.pointSmoothingFactor = get_float_from_table(t, "pointprocessor.pointSmoothingFactor", settings.pointSmoothingFactor);
+-        settings.pointDeadBandSmoothingFactor = get_float_from_table(t, "pointprocessor.pointDeadBandSmoothingFactor", settings.pointDeadBandSmoothingFactor);
+-        settings.pointSmoothingDeadZone = get_float_from_table(t, "pointprocessor.pointSmoothingDeadZone", settings.pointSmoothingDeadZone);
+-        settings.maxFailedTestsInProbation = get_int_from_table(t, "pointprocessor.maxFailedTestsInProbation", settings.maxFailedTestsInProbation);
+-        settings.probationFrameCount = get_int_from_table(t, "pointprocessor.probationFrameCount", settings.probationFrameCount);
+-        settings.maxFailedTestsInProbationActivePoints = get_int_from_table(t, "pointprocessor.maxFailedTestsInProbationActivePoints", settings.maxFailedTestsInProbationActivePoints);
+-        settings.secondChanceMinDistance = get_float_from_table(t, "pointprocessor.secondChanceMinDistance", settings.secondChanceMinDistance);
+-        settings.mergePointDistance = get_float_from_table(t, "pointprocessor.mergePointDistance", settings.mergePointDistance);
+-        settings.maxhandpointUpdatesPerFrame = get_int_from_table(t, "pointprocessor.maxhandpointUpdatesPerFrame", settings.maxhandpointUpdatesPerFrame);
+ 
+-        return settings;
++        return point_processor_settings{};
+     }
+ 
+-    trajectory_analyzer_settings parse_trajectory_analyzer_settings(cpptoml::table t)
++    trajectory_analyzer_settings parse_trajectory_analyzer_settings()
+     {
+-        trajectory_analyzer_settings settings;
+-
+-        settings.maxSteadyDelta = get_float_from_table(t, "trajectoryanalyzer.maxSteadyDelta", settings.maxSteadyDelta);
+-        settings.minSteadyFrames = get_int_from_table(t, "trajectoryanalyzer.minSteadyFrames", settings.minSteadyFrames);
+-        settings.minHeadingDist = get_int_from_table(t, "trajectoryanalyzer.minHeadingDist", settings.minHeadingDist);
+-        settings.deltaHeadingFactor = get_float_from_table(t, "trajectoryanalyzer.deltaHeadingFactor", settings.deltaHeadingFactor);
+-        settings.minHeadingDiffForInflection = get_float_from_table(t, "trajectoryanalyzer.minHeadingDiffForInflection", settings.minHeadingDiffForInflection);
+-        settings.maxHeadingDiffForContinuation = get_float_from_table(t, "trajectoryanalyzer.maxHeadingDiffForContinuation", settings.maxHeadingDiffForContinuation);
+-        settings.minWaveInflectionsForGesture = get_int_from_table(t, "trajectoryanalyzer.minWaveInflectionsForGesture", settings.minWaveInflectionsForGesture);
+-        settings.maxFramesBetweenInflections = get_int_from_table(t, "trajectoryanalyzer.maxFramesBetweenInflections", settings.maxFramesBetweenInflections);
+-
+-        return settings;
++        return trajectory_analyzer_settings{};
+     }
+ 
+-    area_test_settings parse_area_test_settings(cpptoml::table t)
++    area_test_settings parse_area_test_settings()
+     {
+-        area_test_settings settings;
+-
+-        settings.areaBandwidth = get_float_from_table(t, "areatest.areaBandwidth", settings.areaBandwidth);
+-        settings.areaBandwidthDepth = get_float_from_table(t, "areatest.areaBandwidthDepth", settings.areaBandwidthDepth);
+-        settings.minArea = get_float_from_table(t, "areatest.minArea", settings.minArea);
+-        settings.maxArea = get_float_from_table(t, "areatest.maxArea", settings.maxArea);
+-
+-        return settings;
++        return area_test_settings{};
+     }
+ 
+-    circumference_test_settings parse_circumference_test_settings(cpptoml::table t)
++    circumference_test_settings parse_circumference_test_settings()
+     {
+-        circumference_test_settings settings;
+-
+-        settings.foregroundRadius1 = get_float_from_table(t, "circumferencetest.foregroundRadius1", settings.foregroundRadius1);
+-        settings.foregroundRadius2 = get_float_from_table(t, "circumferencetest.foregroundRadius2", settings.foregroundRadius2);
+-        settings.foregroundRadiusMinPercent1 = get_float_from_table(t, "circumferencetest.foregroundRadiusMinPercent1", settings.foregroundRadiusMinPercent1);
+-        settings.foregroundRadiusMinPercent2 = get_float_from_table(t, "circumferencetest.foregroundRadiusMinPercent2", settings.foregroundRadiusMinPercent2);
+-        settings.foregroundRadiusMaxPercent1 = get_float_from_table(t, "circumferencetest.foregroundRadiusMaxPercent1", settings.foregroundRadiusMaxPercent1);
+-        settings.foregroundRadiusMaxPercent2 = get_float_from_table(t, "circumferencetest.foregroundRadiusMaxPercent2", settings.foregroundRadiusMaxPercent2);
+-
+-        return settings;
++        return circumference_test_settings{};
+     }
+ 
+-    natural_edge_test_settings parse_natural_edge_test_settings(cpptoml::table t)
++    natural_edge_test_settings parse_natural_edge_test_settings()
+     {
+-        natural_edge_test_settings settings;
+-
+-        settings.naturalEdgeBandwidth = get_float_from_table(t, "naturaledgetest.naturalEdgeBandwidth", settings.naturalEdgeBandwidth);
+-        settings.minPercentNaturalEdges = get_float_from_table(t, "naturaledgetest.minPercentNaturalEdges", settings.minPercentNaturalEdges);
+-
+-        return settings;
++        return natural_edge_test_settings{};
+     }
+ 
+-    segmentation_settings parse_segmentation_settings(cpptoml::table t)
++    segmentation_settings parse_segmentation_settings()
+     {
+-        segmentation_settings settings;
+-
+-        settings.segmentationBandwidthDepthNear = get_float_from_table(t, "segmentation.segmentationBandwidthDepthNear", settings.segmentationBandwidthDepthNear);
+-        settings.segmentationBandwidthDepthFar = get_float_from_table(t, "segmentation.segmentationBandwidthDepthFar", settings.segmentationBandwidthDepthFar);
+-        settings.maxSegmentationDist = get_float_from_table(t, "segmentation.maxSegmentationDist", settings.maxSegmentationDist);
+-        settings.heightScoreFactor = get_float_from_table(t, "segmentation.heightScoreFactor", settings.heightScoreFactor);
+-        settings.depthScoreFactor = get_float_from_table(t, "segmentation.depthScoreFactor", settings.depthScoreFactor);
+-        settings.targetEdgeDistance = get_float_from_table(t, "segmentation.targetEdgeDistance", settings.targetEdgeDistance);
+-        settings.edgeDistanceScoreFactor = get_float_from_table(t, "segmentation.edgeDistanceScoreFactor", settings.edgeDistanceScoreFactor);
+-        settings.pointInertiaFactor = get_float_from_table(t, "segmentation.pointInertiaFactor", settings.pointInertiaFactor);
+-        settings.pointInertiaRadius = get_float_from_table(t, "segmentation.pointInertiaRadius", settings.pointInertiaRadius);
+-        settings.maxDepthToDownscaleTestPass = get_float_from_table(t, "segmentation.maxDepthToDownscaleTestPass", settings.maxDepthToDownscaleTestPass);
+-
+-        settings.areaTestSettings = parse_area_test_settings(t);
+-        settings.circumferenceTestSettings = parse_circumference_test_settings(t);
+-        settings.naturalEdgeTestSettings = parse_natural_edge_test_settings(t);
+-
+-        return settings;
++        return segmentation_settings{};
+     }
+ 
+     hand_settings parse_settings(std::string path)
+     {
+         hand_settings settings;
+-
+-        cpptoml::table t;
+-
+-        try
+-        {
+-            t = cpptoml::parse_file(path);
+-        }
+-        catch (const cpptoml::parse_exception& e)
+-        {
+-            return settings;
+-        }
+-
+-        settings.processingSizeWidth = get_int_from_table(t, "handtracker.processingSizeWidth", settings.processingSizeWidth);
+-        settings.processingSizeHeight = get_int_from_table(t, "handtracker.processingSizeHeight", settings.processingSizeHeight);
+-
+-        settings.depthUtilitySettings = parse_depth_utility_settings(t);
+-        settings.pointProcessorSettings = parse_point_processor_settings(t);
+-        settings.pointProcessorSettings.trajectoryAnalyzerSettings = parse_trajectory_analyzer_settings(t);
+-        settings.pointProcessorSettings.segmentationSettings = parse_segmentation_settings(t);
++  
++        settings.processingSizeWidth = 160;
++        settings.processingSizeHeight = 120;
++
++        settings.depthUtilitySettings = parse_depth_utility_settings();
++        settings.pointProcessorSettings = parse_point_processor_settings();
++        settings.pointProcessorSettings.trajectoryAnalyzerSettings = parse_trajectory_analyzer_settings();
++        settings.pointProcessorSettings.segmentationSettings = parse_segmentation_settings();
+ 
+         return settings;
+     }
+diff --git a/src/plugins/orbbec_xs/CMakeLists.txt b/src/plugins/orbbec_xs/CMakeLists.txt
+index 129ac77..c14eb0f 100644
+--- a/src/plugins/orbbec_xs/CMakeLists.txt
++++ b/src/plugins/orbbec_xs/CMakeLists.txt
+@@ -9,6 +9,12 @@ set(XS_INCLUDE
+   xs_pointstream.hpp
+   )
+ 
++add_library(Shiny SHARED IMPORTED) # or STATIC instead of SHARED
++set_target_properties(Shiny PROPERTIES
++  IMPORTED_LOCATION "/sm3/astra/vendor/shinyprofiler/tets/lib/libShiny.a"
++  INTERFACE_INCLUDE_DIRECTORIES "/sm3/astra/vendor/shinyprofiler/include"
++)
++
+ include_directories(orbbec_xs ${SHINY_INCLUDE_DIR})
+ add_library(orbbec_xs SHARED ${XS_SRC} ${XS_INCLUDE})
+ target_link_libraries(orbbec_xs astra_core_api astra Shiny)
+diff --git a/vendor/CMakeLists.txt b/vendor/CMakeLists.txt
+index 064df9a..fcf972e 100644
+--- a/vendor/CMakeLists.txt
++++ b/vendor/CMakeLists.txt
+@@ -1 +1 @@
+-add_subdirectory(shinyprofiler)
++#add_subdirectory(shinyprofiler)
+diff --git a/vendor/shinyprofiler b/vendor/shinyprofiler
+--- a/vendor/shinyprofiler
++++ b/vendor/shinyprofiler
+@@ -1 +1 @@
+-Subproject commit 249dfd89fb1c57ed3e4f8afecdf64e42daf67ef8
++Subproject commit 249dfd89fb1c57ed3e4f8afecdf64e42daf67ef8-dirty
