@@ -2,10 +2,6 @@ cmake_minimum_required (VERSION 3.2)
 
 project (Astra)
 
-if (UNIX) #not android
-  set(ASTRA_UNIX TRUE)
-endif()
-
 # Version
 string (TIMESTAMP BUILD_DATE "%Y%m%dT%H%M%SZ" UTC)
 set (Astra_VERSION_MAJOR 0)
@@ -206,11 +202,9 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/samples
   PATTERN "samples/tools/StreamRecorder" EXCLUDE
   )
 
-if (ASTRA_UNIX)
-  install(DIRECTORY ${PROJECT_SOURCE_DIR}/install
-    DESTINATION .
-    )
-endif()
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/install
+  DESTINATION .
+  )
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/cmake
   DESTINATION samples
