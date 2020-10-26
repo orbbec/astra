@@ -33,7 +33,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(ASTRA_XS TRUE CACHE BOOL "Build extra stream support plugin")
 set(ASTRA_HAND TRUE CACHE BOOL "Build hand tracking plugin")
 set(ASTRA_STREAMPLAYER FALSE CACHE BOOL "Build experimental stream playback plugin (not working)")
-set(ASTRA_MOCK_DEVICE FALSE CACHE BOOL "Build mock test device plugin")
 
 find_package(CLISP REQUIRED)
 

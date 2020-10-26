@@ -29,10 +29,6 @@ if (ASTRA_XS)
   add_subdirectory(orbbec_xs)
 endif()
 
-if (ASTRA_MOCK_DEVICE)
-  add_subdirectory(mock_sensor)
-endif()
-
 if (ASTRA_STREAMPLAYER)
   add_subdirectory(orbbec_streamplayer)
 endif()

@@ -52,10 +52,6 @@ if (ASTRA_XS)
   add_dependencies(orbbec_xs ${_projname})
 endif()
 
-if (ASTRA_MOCK_DEVICE)
-  add_dependencies(${SDK_DEPENDENT_TARGET} mock_sensor)
-endif()
-
 add_dependencies(${SDK_DEPENDENT_TARGET} copytoml_astra)
 
 if (ASTRA_HAND)
