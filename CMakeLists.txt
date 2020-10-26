@@ -2,9 +2,7 @@ cmake_minimum_required (VERSION 3.2)
 
 project (Astra)
 
-if (ANDROID)
-  set(ASTRA_ANDROID TRUE)
-elseif (WIN32)
+if (WIN32)
   set(ASTRA_WINDOWS TRUE)
 elseif (APPLE)
   set(ASTRA_OSX TRUE)
@@ -67,10 +65,6 @@ if(ASTRA_GCC OR ASTRA_CLANG)
 
   message("flags ${CMAKE_CXX_FLAGS}")
 
-  if(ASTRA_ANDROID)
-    set(ANDROID_CXX_FLAGS "${ANDROID_CXX_FLAGS} ${ASTRA_CXX_FLAGS}")
-  endif()
-
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
@@ -93,11 +87,7 @@ if (ASTRA_DOCS)
   add_subdirectory(docs)
 endif()
 
-if(ASTRA_ANDROID)
-  find_host_package(CLISP REQUIRED)
-else()
-  find_package(CLISP REQUIRED)
-endif()
+find_package(CLISP REQUIRED)
 
 #Override FindAstra equivalents
 set(ASTRA_SDK_BUILD TRUE)
