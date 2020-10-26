@@ -273,11 +273,7 @@ int main(int argc, char** argv)
 
     sf::RenderWindow window(sf::VideoMode(1280, 960), "Depth Viewer");
 
-#ifdef _WIN32
-    auto fullscreenStyle = sf::Style::None;
-#else
     auto fullscreenStyle = sf::Style::Fullscreen;
-#endif
 
     const sf::VideoMode fullScreenMode = sf::VideoMode::getFullscreenModes()[0];
     const sf::VideoMode windowedMode(1280, 1024);

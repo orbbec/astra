@@ -1406,14 +1406,6 @@ namespace Catch {
 // #included from: catch_platform.h
 #define TWOBLUECUBES_CATCH_PLATFORM_H_INCLUDED
 
-#if defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
-#define CATCH_PLATFORM_MAC
-#elif  defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-#define CATCH_PLATFORM_IPHONE
-#elif defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER)
-#define CATCH_PLATFORM_WINDOWS
-#endif
-
 #include <string>
 
 namespace Catch{
@@ -5931,72 +5923,6 @@ namespace Catch { namespace Detail {
     };
 }}
 
-#if defined ( CATCH_PLATFORM_WINDOWS ) /////////////////////////////////////////
-
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
-#ifdef __AFXDLL
-#include <AfxWin.h>
-#else
-#include <windows.h>
-#endif
-
-namespace Catch {
-namespace {
-
-    class Win32ColourImpl : public Detail::IColourImpl {
-    public:
-        Win32ColourImpl() : stdoutHandle( GetStdHandle(STD_OUTPUT_HANDLE) )
-        {
-            CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
-            GetConsoleScreenBufferInfo( stdoutHandle, &csbiInfo );
-            originalAttributes = csbiInfo.wAttributes;
-        }
-
-        virtual void use( Colour::Code _colourCode ) {
-            switch( _colourCode ) {
-                case Colour::None:      return setTextAttribute( originalAttributes );
-                case Colour::White:     return setTextAttribute( FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
-                case Colour::Red:       return setTextAttribute( FOREGROUND_RED );
-                case Colour::Green:     return setTextAttribute( FOREGROUND_GREEN );
-                case Colour::Blue:      return setTextAttribute( FOREGROUND_BLUE );
-                case Colour::Cyan:      return setTextAttribute( FOREGROUND_BLUE | FOREGROUND_GREEN );
-                case Colour::Yellow:    return setTextAttribute( FOREGROUND_RED | FOREGROUND_GREEN );
-                case Colour::Grey:      return setTextAttribute( 0 );
-
-                case Colour::LightGrey:     return setTextAttribute( FOREGROUND_INTENSITY );
-                case Colour::BrightRed:     return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_RED );
-                case Colour::BrightGreen:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN );
-                case Colour::BrightWhite:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
-
-                case Colour::Bright: throw std::logic_error( "not a colour" );
-            }
-        }
-
-    private:
-        void setTextAttribute( WORD _textAttribute ) {
-            SetConsoleTextAttribute( stdoutHandle, _textAttribute );
-        }
-        HANDLE stdoutHandle;
-        WORD originalAttributes;
-    };
-
-    inline bool shouldUseColourForPlatform() {
-        return true;
-    }
-
-    static Detail::IColourImpl* platformColourInstance() {
-        static Win32ColourImpl s_instance;
-        return &s_instance;
-    }
-
-} // end anon namespace
-} // end namespace Catch
-
-#else // Not Windows - assumed to be POSIX compatible //////////////////////////
-
 #include <unistd.h>
 
 namespace Catch {
@@ -6044,8 +5970,6 @@ namespace {
 
 } // end anon namespace
 } // end namespace Catch
-
-#endif // not Windows
 
 namespace Catch {
 

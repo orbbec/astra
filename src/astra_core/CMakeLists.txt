@@ -84,23 +84,13 @@ set(${_projname}_ANDROID_SOURCES
   unix/astra_shared_library_unix.cpp
   )
 
-set(${_projname}_WIN32_SOURCES
-  win32/astra_environment_win32.cpp
-  win32/astra_filesystem_win32.cpp
-  win32/astra_shared_library_win32.cpp
-  )
-
 set(${_projname}_UNIX_SOURCES
   unix/astra_environment_unix.cpp
   unix/astra_filesystem_unix.cpp
   unix/astra_shared_library_unix.cpp
   )
 
-if (ASTRA_ANDROID)
-  set(${_projname}_SOURCES ${${_projname}_SOURCES} ${${_projname}_ANDROID_SOURCES})
-elseif(ASTRA_WINDOWS)
-  set(${_projname}_SOURCES ${${_projname}_SOURCES} ${${_projname}_WIN32_SOURCES})
-elseif(ASTRA_UNIX OR ASTRA_OSX)
+if(ASTRA_UNIX OR ASTRA_OSX)
   set(${_projname}_SOURCES ${${_projname}_SOURCES} ${${_projname}_UNIX_SOURCES})
 endif()
 

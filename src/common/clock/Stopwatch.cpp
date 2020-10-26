@@ -26,12 +26,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <common/clock/Stdafx.h>
 
-#ifndef WIN32
-    #include <sys/time.h>
-#else
-    #include <Windows.h>
-    #include <iomanip>
-#endif
+#include <sys/time.h>
 
 #include <common/clock/Stopwatch.h>
 
@@ -66,22 +61,6 @@ long double Stopwatch::take_time() {
 
         // Query operating system
 
-#ifdef WIN32
-        /*	In case of usage under Windows */
-        FILETIME ft;
-        LARGE_INTEGER intervals;
-
-        // Get the amount of 100 nanoseconds intervals elapsed since January 1, 1601 (UTC)
-        GetSystemTimeAsFileTime(&ft);
-        intervals.LowPart = ft.dwLowDateTime;
-        intervals.HighPart = ft.dwHighDateTime;
-
-        long double measure = intervals.QuadPart;
-        measure -= 116444736000000000.0;			// Convert to UNIX epoch time
-        measure /= 10000000.0;						// Convert to seconds
-
-        return measure;
-#else
         /* Linux, MacOS, ... */
         struct timeval tv;
         gettimeofday(&tv, NULL);
@@ -91,8 +70,6 @@ long double Stopwatch::take_time() {
         measure += tv.tv_sec;						// Add seconds part
 
         return measure;
-#endif
-
     } else {
         // If mode == NONE, clock has not been initialized, then throw exception
         throw StopwatchException("Clock not initialized to a time taking mode!");

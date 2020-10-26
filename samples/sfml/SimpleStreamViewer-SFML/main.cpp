@@ -390,11 +390,7 @@ int main(int argc, char** argv)
 
     set_key_handler();
 
-#ifdef _WIN32
-    auto fullscreenStyle = sf::Style::None;
-#else
     auto fullscreenStyle = sf::Style::Fullscreen;
-#endif
 
     const sf::VideoMode fullScreenMode = sf::VideoMode::getFullscreenModes()[0];
     const sf::VideoMode windowedMode(1800, 675);

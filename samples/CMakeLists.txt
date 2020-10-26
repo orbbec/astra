@@ -4,8 +4,6 @@ project(astra-samples)
 
 if (ANDROID)
   set(ASTRA_ANDROID TRUE)
-elseif (WIN32)
-  set(ASTRA_WINDOWS TRUE)
 elseif (APPLE)
   set(ASTRA_OSX TRUE)
 elseif (UNIX) #not android

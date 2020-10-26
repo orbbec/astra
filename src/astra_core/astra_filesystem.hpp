@@ -20,13 +20,7 @@
 #include <string>
 #include "astra_platform.hpp"
 
-#if (ASTRA_PLATFORM == ASTRA_PLATFORM_WIN32)
-#include "win32/astra_filesystem_win32.hpp"
-#elif defined(ASTRA_UNIXISH)
 #include "unix/astra_filesystem_unix.hpp"
-#else
-#error "Unsupported platform!"
-#endif
 
 namespace astra { namespace filesystem {
 

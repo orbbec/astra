@@ -2,9 +2,7 @@ cmake_minimum_required (VERSION 3.2)
 
 project (Astra)
 
-if (WIN32)
-  set(ASTRA_WINDOWS TRUE)
-elseif (APPLE)
+if (APPLE)
   set(ASTRA_OSX TRUE)
 elseif (UNIX) #not android
   set(ASTRA_UNIX TRUE)
@@ -317,10 +315,6 @@ elseif(system_name_lower STREQUAL "windows")
   message("Setting CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 endif()
 
-if (WIN32)
-  set(CPACK_GENERATOR "ZIP")
-else()
-  set(CPACK_GENERATOR "TGZ")
-endif()
+set(CPACK_GENERATOR "TGZ")
 
 INCLUDE(CPack)

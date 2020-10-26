@@ -48,11 +48,7 @@ namespace astra {
     std::vector<std::string> plugin_manager::find_libraries(const std::string& pluginsPath)
     {
 
-#ifdef _WIN32
-        std::vector<std::string> extensions = { "dll" };
-#else
         std::vector<std::string> extensions = { "so", "dylib" };
-#endif //_WIN32
 
         std::vector<std::string> result;
         tinydir_dir dir;

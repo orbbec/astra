@@ -28,35 +28,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#ifdef _MSC_VER
-#pragma warning (disable : 4996)
-#endif
-#else
 #include <dirent.h>
 #include <libgen.h>
 #include <sys/stat.h>
-#endif
 
 
 /* types */
 
 #define _TINYDIR_PATH_MAX 4096
-#ifdef _WIN32
-/* extra chars for the "\\*" mask */
-#define _TINYDIR_PATH_EXTRA 2
-#else
 #define _TINYDIR_PATH_EXTRA 0
-#endif
 #define _TINYDIR_FILENAME_MAX 256
 
-#ifdef _MSC_VER
-#define _TINYDIR_FUNC static __inline
-#else
 #define _TINYDIR_FUNC static __inline__
-#endif
 
 /* Allow user to use a custom allocator by defining _TINYDIR_MALLOC and _TINYDIR_FREE. */
 #if    defined(_TINYDIR_MALLOC) &&  defined(_TINYDIR_FREE)
@@ -78,10 +61,7 @@ typedef struct
 	int is_dir;
 	int is_reg;
 
-#ifdef _WIN32
-#else
 	struct stat _s;
-#endif
 } tinydir_file;
 
 typedef struct
@@ -91,13 +71,8 @@ typedef struct
 	size_t n_files;
 
 	tinydir_file *_files;
-#ifdef _WIN32
-	HANDLE _h;
-	WIN32_FIND_DATAA _f;
-#else
 	DIR *_d;
 	struct dirent *_e;
-#endif
 } tinydir_dir;
 
 
@@ -143,23 +118,12 @@ int tinydir_open(tinydir_dir *dir, const char *path)
 
 	/* initialise dir */
 	dir->_files = NULL;
-#ifdef _WIN32
-	dir->_h = INVALID_HANDLE_VALUE;
-#else
 	dir->_d = NULL;
-#endif
 	tinydir_close(dir);
 
 	strcpy(dir->path, path);
-#ifdef _WIN32
-	strcat(dir->path, "\\*");
-	dir->_h = FindFirstFileA(dir->path, &dir->_f);
-	dir->path[strlen(dir->path) - 2] = '\0';
-	if (dir->_h == INVALID_HANDLE_VALUE)
-#else
 	dir->_d = opendir(path);
 	if (dir->_d == NULL)
-#endif
 	{
 		errno = ENOENT;
 		goto bail;
@@ -167,13 +131,6 @@ int tinydir_open(tinydir_dir *dir, const char *path)
 
 	/* read first file */
 	dir->has_next = 1;
-#ifndef _WIN32
-	dir->_e = readdir(dir->_d);
-	if (dir->_e == NULL)
-	{
-		dir->has_next = 0;
-	}
-#endif
 
 	return 0;
 
@@ -262,20 +219,12 @@ void tinydir_close(tinydir_dir *dir)
 		_TINYDIR_FREE(dir->_files);
 	}
 	dir->_files = NULL;
-#ifdef _WIN32
-	if (dir->_h != INVALID_HANDLE_VALUE)
-	{
-		FindClose(dir->_h);
-	}
-	dir->_h = INVALID_HANDLE_VALUE;
-#else
 	if (dir->_d)
 	{
 		closedir(dir->_d);
 	}
 	dir->_d = NULL;
 	dir->_e = NULL;
-#endif
 }
 
 _TINYDIR_FUNC
@@ -292,23 +241,10 @@ int tinydir_next(tinydir_dir *dir)
 		return -1;
 	}
 
-#ifdef _WIN32
-	if (FindNextFileA(dir->_h, &dir->_f) == 0)
-#else
 	dir->_e = readdir(dir->_d);
 	if (dir->_e == NULL)
-#endif
 	{
 		dir->has_next = 0;
-#ifdef _WIN32
-		if (GetLastError() != ERROR_SUCCESS &&
-			GetLastError() != ERROR_NO_MORE_FILES)
-		{
-			tinydir_close(dir);
-			errno = EIO;
-			return -1;
-		}
-#endif
 	}
 
 	return 0;
@@ -322,22 +258,14 @@ int tinydir_readfile(const tinydir_dir *dir, tinydir_file *file)
 		errno = EINVAL;
 		return -1;
 	}
-#ifdef _WIN32
-	if (dir->_h == INVALID_HANDLE_VALUE)
-#else
 	if (dir->_e == NULL)
-#endif
 	{
 		errno = ENOENT;
 		return -1;
 	}
 	if (strlen(dir->path) +
 		strlen(
-#ifdef _WIN32
-			dir->_f.cFileName
-#else
 			dir->_e->d_name
-#endif
 		) + 1 + _TINYDIR_PATH_EXTRA >=
 		_TINYDIR_PATH_MAX)
 	{
@@ -346,11 +274,7 @@ int tinydir_readfile(const tinydir_dir *dir, tinydir_file *file)
 		return -1;
 	}
 	if (strlen(
-#ifdef _WIN32
-			dir->_f.cFileName
-#else
 			dir->_e->d_name
-#endif
 		) >= _TINYDIR_FILENAME_MAX)
 	{
 		errno = ENAMETOOLONG;
@@ -360,45 +284,15 @@ int tinydir_readfile(const tinydir_dir *dir, tinydir_file *file)
 	strcpy(file->path, dir->path);
 	strcat(file->path, "/");
 	strcpy(file->name,
-#ifdef _WIN32
-		dir->_f.cFileName
-#else
 		dir->_e->d_name
-#endif
 	);
 	strcat(file->path, file->name);
-#ifndef _WIN32
-	if (stat(file->path, &file->_s) == -1)
-	{
-		return -1;
-	}
-#endif
 	_tinydir_get_ext(file);
 
 	file->is_dir =
-#ifdef _WIN32
-		!!(dir->_f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-#else
 		S_ISDIR(file->_s.st_mode);
-#endif
 	file->is_reg =
-#ifdef _WIN32
-		!!(dir->_f.dwFileAttributes & FILE_ATTRIBUTE_NORMAL) ||
-		(
-			!(dir->_f.dwFileAttributes & FILE_ATTRIBUTE_DEVICE) &&
-			!(dir->_f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-			!(dir->_f.dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED) &&
-#ifdef FILE_ATTRIBUTE_INTEGRITY_STREAM
-			!(dir->_f.dwFileAttributes & FILE_ATTRIBUTE_INTEGRITY_STREAM) &&
-#endif
-#ifdef FILE_ATTRIBUTE_NO_SCRUB_DATA
-			!(dir->_f.dwFileAttributes & FILE_ATTRIBUTE_NO_SCRUB_DATA) &&
-#endif
-			!(dir->_f.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE) &&
-			!(dir->_f.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY));
-#else
-		S_ISREG(file->_s.st_mode);
-#endif
+	S_ISREG(file->_s.st_mode);
 
 	return 0;
 }
@@ -459,10 +353,6 @@ int tinydir_file_open(tinydir_file *file, const char *path)
 	char file_name_buf[_TINYDIR_FILENAME_MAX];
 	char *dir_name;
 	char *base_name;
-#ifdef _WIN32
-	char drive_buf[_TINYDIR_PATH_MAX];
-	char ext_buf[_TINYDIR_FILENAME_MAX];
-#endif
 	
 	if (file == NULL || path == NULL || strlen(path) == 0)
 	{
@@ -476,29 +366,10 @@ int tinydir_file_open(tinydir_file *file, const char *path)
 	}
 
 	/* Get the parent path */
-#ifdef _WIN32
-	if (_splitpath_s(
-			path,
-			drive_buf, sizeof drive_buf,
-			dir_name_buf, sizeof dir_name_buf,
-			file_name_buf, sizeof file_name_buf,
-			ext_buf, sizeof ext_buf))
-	{
-		errno = EINVAL;
-		return -1;
-	}
-	/* Concatenate the drive letter and dir name to form full dir name */
-	strcat(drive_buf, dir_name_buf);
-	dir_name = drive_buf;
-	/* Concatenate the file name and extension to form base name */
-	strcat(file_name_buf, ext_buf);
-	base_name = file_name_buf;
-#else
 	strcpy(dir_name_buf, path);
 	dir_name = dirname(dir_name_buf);
 	strcpy(file_name_buf, path);
 	base_name = basename(file_name_buf);
-#endif
 	
 	/* Open the parent directory */
 	if (tinydir_open(&dir, dir_name) == -1)

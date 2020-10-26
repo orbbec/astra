@@ -46,10 +46,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Stdafx.h"
 
-#ifndef WIN32
-	/* The classes below are exported */
-	#pragma GCC visibility push(default)
-#endif
+#pragma GCC visibility push(default)
 
 // Generic stopwatch exception class
 struct StopwatchException {
@@ -256,9 +253,5 @@ protected:
 	/** Flag to hold the clock's status */
 	bool active;
 };
-
-#ifndef WIN32
-	#pragma GCC visibility pop
-#endif
 
 #endif
