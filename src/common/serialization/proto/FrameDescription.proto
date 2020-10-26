@@ -1,6 +1,0 @@
-package astra.serialization.proto;
-
-message FrameDescription {
-  optional double framePeriod = 1;
-  optional uint32 bufferLength = 2;
-}

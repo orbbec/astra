@@ -55,4 +55,3 @@ add_subdirectory(c-api)
 add_subdirectory(cpp-api)
 
 add_subdirectory(sfml)
-add_subdirectory(tools)

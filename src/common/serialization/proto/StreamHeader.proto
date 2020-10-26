@@ -1,5 +1,0 @@
-package astra.serialization.proto;
-
-message StreamHeader {
-  optional uint32 frameType = 1;
-}

@@ -1,7 +1,0 @@
-package astra.serialization.proto;
-
-message Frame {
-  optional uint32 byteLength = 1;
-  optional uint32 frameIndex = 2;
-  optional bytes rawFrameWrapper = 3;
-}

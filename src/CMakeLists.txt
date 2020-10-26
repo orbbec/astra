@@ -14,15 +14,6 @@ add_subdirectory(astra)
 add_subdirectory(astra_core_api)
 add_subdirectory(plugins)
 
-if (NOT ASTRA_ANDROID AND ASTRA_STREAMPLAYER)
-  add_subdirectory(common)
-endif()
-
-if (ASTRA_ANDROID)
-  add_subdirectory(jni)
-  add_subdirectory(android)
-endif()
-
 set (_projname "ProxyPreprocessor")
 
 add_custom_target(${_projname} ALL
@@ -56,8 +47,4 @@ add_dependencies(${SDK_DEPENDENT_TARGET} copytoml_astra)
 
 if (ASTRA_HAND)
   add_dependencies(${SDK_DEPENDENT_TARGET} copytoml_hand)
-endif()
-
-if (ASTRA_STREAMPLAYER)
-  add_dependencies(${SDK_DEPENDENT_TARGET} FrameSerialization)
 endif()

@@ -28,7 +28,3 @@ endif()
 if (ASTRA_XS)
   add_subdirectory(orbbec_xs)
 endif()
-
-if (ASTRA_STREAMPLAYER)
-  add_subdirectory(orbbec_streamplayer)
-endif()
