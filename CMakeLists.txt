@@ -75,11 +75,6 @@ set(CPPTOML_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/cpptoml"
   INTERNAL
   "Path to include folder for cpptoml")
 
-set(EASYLOGGINGPP_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/easyloggingpp"
-  CACHE
-  INTERNAL
-  "Path to include folder for easylogging++")
-
 if (ASTRA_64)
   set(SAMPLE_DEPENDENCY_DIR "copy_to_bin64_dir")
 else()
