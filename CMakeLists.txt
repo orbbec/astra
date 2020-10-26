@@ -2,9 +2,7 @@ cmake_minimum_required (VERSION 3.2)
 
 project (Astra)
 
-if (APPLE)
-  set(ASTRA_OSX TRUE)
-elseif (UNIX) #not android
+if (UNIX) #not android
   set(ASTRA_UNIX TRUE)
 endif()
 

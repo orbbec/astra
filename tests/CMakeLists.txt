@@ -1,12 +1,7 @@
 set(_projname "test-harness")
 
-if(ASTRA_OSX)
-  set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
-  message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
-elseif(ASTRA_UNIX)
-  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-  message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
-endif()
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
 
 function(add_astra_sdk_dependency _targetname)
   if(NOT TARGET ${_targetname})

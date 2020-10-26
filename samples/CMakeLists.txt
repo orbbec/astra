@@ -2,11 +2,7 @@
 cmake_minimum_required(VERSION 3.2)
 project(astra-samples)
 
-if (ANDROID)
-  set(ASTRA_ANDROID TRUE)
-elseif (APPLE)
-  set(ASTRA_OSX TRUE)
-elseif (UNIX) #not android
+if (UNIX) #not android
   set(ASTRA_UNIX TRUE)
 endif()
 
@@ -17,18 +13,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 find_package(Astra REQUIRED)
-
-if (NOT ASTRA_SDK_BUILD)
-  #copy Astra SDK binaries to lib dir
-  if (ASTRA_OSX)
-    set(ASTRA_LIB_COPY_TARGET ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-    add_custom_target(copy-astra-libs ALL
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-      ${ASTRA_LIB_DIR}/
-      ${ASTRA_LIB_COPY_TARGET})
-    set_target_properties(copy-astra-libs PROPERTIES FOLDER CMakeCopyTargets)
-  endif()
-endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(ASTRA_64 ON)
@@ -54,13 +38,6 @@ function(install_sample _targetname)
   endif()
 endfunction()
 
-if (ASTRA_OSX)
-  install(
-    FILES scripts/build_samples.sh
-    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-    DESTINATION samples/)
-endif()
-
 include_directories(${ASTRA_INCLUDE_DIR})
 
 get_filename_component(SAMPLE_COMMON_DIR "./common" ABSOLUTE)
@@ -75,13 +52,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ASTRA_CXX_FLAGS}")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 #set the rpath to go up from the bin/ to to the lib/ dir to find the Astra libs
-if(ASTRA_OSX)
-  set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
-  message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
-elseif(ASTRA_UNIX)
-  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-  message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
-endif()
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
 
 add_subdirectory(c-api)
 add_subdirectory(cpp-api)

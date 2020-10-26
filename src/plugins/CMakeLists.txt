@@ -16,11 +16,7 @@ foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
 endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
 #set the rpath to look up from the Plugin directory to the main lib folder
-if(ASTRA_OSX)
-  set(CMAKE_INSTALL_RPATH "@loader_path/..")
-elseif(ASTRA_UNIX)
-  set(CMAKE_INSTALL_RPATH "$ORIGIN/..")
-endif()
+set(CMAKE_INSTALL_RPATH "$ORIGIN/..")
 
 add_subdirectory(device_sdk)
 add_subdirectory(openni_sensor)

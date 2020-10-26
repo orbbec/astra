@@ -7,11 +7,7 @@ set(CMAKE_DEBUG_POSTFIX "-d")
 include(InstallPDB)
 
 #set the rpath to look in the same directory for other Astra libs
-if(ASTRA_OSX)
-  set(CMAKE_INSTALL_RPATH "@loader_path")
-elseif(ASTRA_UNIX)
-  set(CMAKE_INSTALL_RPATH "$ORIGIN")
-endif()
+set(CMAKE_INSTALL_RPATH "$ORIGIN")
 
 add_subdirectory(astra_core)
 add_subdirectory(astra)

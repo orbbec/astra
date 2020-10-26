@@ -78,21 +78,13 @@ set(${_projname}_SOURCES
   astra_string.cpp
   )
 
-set(${_projname}_ANDROID_SOURCES
-  android/astra_environment_android.cpp
-  unix/astra_filesystem_unix.cpp
-  unix/astra_shared_library_unix.cpp
-  )
-
 set(${_projname}_UNIX_SOURCES
   unix/astra_environment_unix.cpp
   unix/astra_filesystem_unix.cpp
   unix/astra_shared_library_unix.cpp
   )
 
-if(ASTRA_UNIX OR ASTRA_OSX)
-  set(${_projname}_SOURCES ${${_projname}_SOURCES} ${${_projname}_UNIX_SOURCES})
-endif()
+set(${_projname}_SOURCES ${${_projname}_SOURCES} ${${_projname}_UNIX_SOURCES})
 
 set(${_projname}_SOURCES_GEN
   ../../include/astra_core/StreamServiceProxy.hpp.lpp
