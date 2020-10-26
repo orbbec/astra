@@ -30,22 +30,10 @@ message("flags ${CMAKE_CXX_FLAGS}")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(ASTRA_DOCS FALSE CACHE BOOL "Build documentation")
 set(ASTRA_XS TRUE CACHE BOOL "Build extra stream support plugin")
 set(ASTRA_HAND TRUE CACHE BOOL "Build hand tracking plugin")
 set(ASTRA_STREAMPLAYER FALSE CACHE BOOL "Build experimental stream playback plugin (not working)")
 set(ASTRA_MOCK_DEVICE FALSE CACHE BOOL "Build mock test device plugin")
-set(ASTRA_SKELETON FALSE CACHE BOOL "Build experimental skeleton support (not working)")
-
-if (ASTRA_EXPERIMENTAL)
-  set(ASTRA_STREAMPLAYER TRUE)
-  set(ASTRA_MOCK_DEVICE TRUE)
-  set(ASTRA_SKELETON TRUE)
-endif()
-
-if (ASTRA_DOCS)
-  add_subdirectory(docs)
-endif()
 
 find_package(CLISP REQUIRED)
 

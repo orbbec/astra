@@ -13,10 +13,6 @@ add_subdirectory(SimpleStreamViewer-SFML)
 add_subdirectory(SimpleColorViewer-SFML)
 add_subdirectory(MultiSensorViewer-SFML)
 
-if(ASTRA_SKELETON)
-    add_subdirectory(SimpleSkeletonViewer-SFML)
-endif()
-
 set(FONT_TARGET_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/")
 
 if (ASTRA_SDK_BUILD)

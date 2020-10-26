@@ -21,10 +21,6 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN/..")
 add_subdirectory(device_sdk)
 add_subdirectory(openni_sensor)
 
-if (ASTRA_SKELETON)
-  add_subdirectory(orbbec_skeleton)
-endif()
-
 if (ASTRA_HAND)
   add_subdirectory(orbbec_hand)
 endif()
@@ -33,14 +29,10 @@ if (ASTRA_XS)
   add_subdirectory(orbbec_xs)
 endif()
 
-if (NOT ASTRA_ANDROID)
+if (ASTRA_MOCK_DEVICE)
+  add_subdirectory(mock_sensor)
+endif()
 
-  if (ASTRA_MOCK_DEVICE)
-    add_subdirectory(mock_sensor)
-  endif()
-
-  if (ASTRA_STREAMPLAYER)
-    add_subdirectory(orbbec_streamplayer)
-  endif()
-
+if (ASTRA_STREAMPLAYER)
+  add_subdirectory(orbbec_streamplayer)
 endif()
