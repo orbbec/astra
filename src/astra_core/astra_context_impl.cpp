@@ -28,7 +28,7 @@
 #include "astra_filesystem.hpp"
 #include "astra_cxx_compatibility.hpp"
 
-INITIALIZE_LOGGING
+#include <iostream>
 
 namespace astra {
 
@@ -185,7 +185,9 @@ namespace astra {
         assert(reader != nullptr);
 
         stream_reader* actualReader = stream_reader::get_ptr(reader);
-
+        std::cout << "reader con: " << actualReader << std::endl;
+        astra_stream_desc_t desc {7, DEFAULT_SUBTYPE};
+        actualReader->get_stream(desc);
         if (actualReader)
         {
             astra_stream_desc_t desc;

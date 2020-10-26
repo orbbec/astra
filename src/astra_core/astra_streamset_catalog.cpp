@@ -16,6 +16,7 @@
 // Be excellent to each other.
 #include "astra_streamset_catalog.hpp"
 #include <cassert>
+#include <algorithm>
 #include "astra_streamset.hpp"
 #include "astra_streamset_connection.hpp"
 #include "astra_signal.hpp"

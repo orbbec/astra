@@ -32,66 +32,66 @@ namespace astra {
         switch(logLevel)
         {
         case ASTRA_SEVERITY_TRACE:
-            el::base::Writer(el::Level::Trace,
-                             fileName,
-                             lineNo,
-                             func,
-                             el::base::DispatchAction::NormalLog)
-                .construct(1, channel) << message;
+            // el::base::Writer(el::Level::Trace,
+            //                  fileName,
+            //                  lineNo,
+            //                  func,
+            //                  el::base::DispatchAction::NormalLog)
+            //     .construct(1, channel) << message;
 
             break;
         case ASTRA_SEVERITY_DEBUG:
-            el::base::Writer(el::Level::Debug,
-                             fileName,
-                             lineNo,
-                             func,
-                             el::base::DispatchAction::NormalLog)
-                .construct(1, channel) << message;
+            // el::base::Writer(el::Level::Debug,
+            //                  fileName,
+            //                  lineNo,
+            //                  func,
+            //                  el::base::DispatchAction::NormalLog)
+            //     .construct(1, channel) << message;
 
             break;
         case ASTRA_SEVERITY_INFO:
-            el::base::Writer(el::Level::Info,
-                             fileName,
-                             lineNo,
-                             func,
-                             el::base::DispatchAction::NormalLog)
-                .construct(1, channel) << message;
+            // el::base::Writer(el::Level::Info,
+            //                  fileName,
+            //                  lineNo,
+            //                  func,
+            //                  el::base::DispatchAction::NormalLog)
+            //     .construct(1, channel) << message;
 
             break;
         case ASTRA_SEVERITY_WARN:
-            el::base::Writer(el::Level::Warning,
-                             fileName,
-                             lineNo,
-                             func,
-                             el::base::DispatchAction::NormalLog)
-                .construct(1, channel) << message;
+            // el::base::Writer(el::Level::Warning,
+            //                  fileName,
+            //                  lineNo,
+            //                  func,
+            //                  el::base::DispatchAction::NormalLog)
+            //     .construct(1, channel) << message;
 
             break;
         case ASTRA_SEVERITY_ERROR:
-            el::base::Writer(el::Level::Error,
-                             fileName,
-                             lineNo,
-                             func,
-                             el::base::DispatchAction::NormalLog)
-                .construct(1, channel) << message;
+            // el::base::Writer(el::Level::Error,
+            //                  fileName,
+            //                  lineNo,
+            //                  func,
+            //                  el::base::DispatchAction::NormalLog)
+            //     .construct(1, channel) << message;
 
             break;
         case ASTRA_SEVERITY_FATAL:
-            el::base::Writer(el::Level::Fatal,
-                             fileName,
-                             lineNo,
-                             func,
-                             el::base::DispatchAction::NormalLog)
-                .construct(1, channel) << message;
+            // el::base::Writer(el::Level::Fatal,
+            //                  fileName,
+            //                  lineNo,
+            //                  func,
+            //                  el::base::DispatchAction::NormalLog)
+            //     .construct(1, channel) << message;
 
             break;
         case ASTRA_SEVERITY_UNKNOWN:
-            el::base::Writer(el::Level::Unknown,
-                             fileName,
-                             lineNo,
-                             func,
-                             el::base::DispatchAction::NormalLog)
-                .construct(1, channel) << message;
+            // el::base::Writer(el::Level::Unknown,
+            //                  fileName,
+            //                  lineNo,
+            //                  func,
+            //                  el::base::DispatchAction::NormalLog)
+            //     .construct(1, channel) << message;
 
             break;
         }

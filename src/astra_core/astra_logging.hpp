@@ -61,7 +61,6 @@
 #pragma clang diagnostic ignored "-Wpessimizing-move"
 #endif //ASTRA_PESSIMIZING_MOVE
 #endif //__clang__
-#include "easylogging++.h"
 #ifdef __clang__
 #if ASTRA_PESSIMIZING_MOVE
 #pragma clang diagnostic pop
@@ -71,7 +70,6 @@
 
 #include <astra_core/capi/astra_types.h>
 
-#define INITIALIZE_LOGGING INITIALIZE_EASYLOGGINGPP
 
 namespace astra {
     void initialize_logging(const char* logFilePath, astra_log_severity_t severity, bool consoleOutput, bool fileOutput);

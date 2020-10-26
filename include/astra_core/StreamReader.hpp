@@ -26,6 +26,8 @@
 #include <functional>
 #include <iterator>
 
+#include <iostream>
+
 namespace astra {
 
     class StreamReader
@@ -58,6 +60,7 @@ namespace astra {
         template<typename T>
         T stream(astra_stream_subtype_t subtype)
         {
+            std::cout << "stream" << std::endl;
             if (!is_valid())
                 throw std::logic_error("StreamReader is not associated with a streamset.");
 
