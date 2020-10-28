@@ -33,6 +33,9 @@ namespace astra {
         const std::string& pluginsPath() const { return pluginsPath_; }
         void set_pluginsPath(std::string pluginsPath) { pluginsPath_ = pluginsPath; }
 
+        const std::string& fileLogPath() const { return fileLogPath_; }
+        void set_fileLogPath(std::string fileLogPath) { fileLogPath_ = fileLogPath; }
+
         static configuration* load_from_file(const char* tomlFilePath);
 
         bool consoleOutput(){ return consoleOutput_; }
@@ -44,6 +47,7 @@ namespace astra {
     private:
         astra_log_severity_t severityLevel_{ASTRA_SEVERITY_FATAL};
         std::string pluginsPath_;
+        std::string fileLogPath_;
         bool consoleOutput_;
         bool fileOutput_;
     };

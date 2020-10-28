@@ -21,7 +21,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(ASTRA_CXX_FLAGS "-Wall -fPIC -std=c++14")
+set(ASTRA_CXX_FLAGS "-Wall -fPIC -std=c++17")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ASTRA_CXX_FLAGS}")
 
@@ -60,6 +60,11 @@ set(SHINY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/shinyprofiler/include"
   INTERNAL
   "Path to include folder for Shiny")
 
+set(EASYLOGGINGPP_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/easyloggingpp"  
+  CACHE 
+  INTERNAL  
+  "Path to include folder for easylogging++")
+  
 set(CATCH_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/catch/include"
   CACHE
   INTERNAL
@@ -179,7 +184,6 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/samples
   PATTERN ".gitignore" EXCLUDE
   PATTERN "samples/scripts" EXCLUDE
   PATTERN "samples/plugins/orbbec_skeleton" EXCLUDE
-  PATTERN "samples/sfml/SimpleSkeletonViewer-SFML" EXCLUDE
   PATTERN "samples/tools/StreamRecorder" EXCLUDE
   )
 

@@ -28,7 +28,10 @@
 #include "astra_filesystem.hpp"
 #include "astra_cxx_compatibility.hpp"
 
-#include <iostream>
+#include <cstdlib>
+
+#define ELPP_THREAD_SAFE
+INITIALIZE_LOGGING
 
 namespace astra {
 
@@ -37,41 +40,30 @@ namespace astra {
         if (initialized_)
             return ASTRA_STATUS_SUCCESS;
 
-#if __ANDROID__
-        std::string appPath = environment::application_path();
-        std::string logPath = filesystem::combine_paths(appPath, "astra.log");
-        std::string configPath = filesystem::combine_paths(appPath, "astra.toml");
-#else
-        std::string logPath = "astra.log";
-        std::string configPath = filesystem::combine_paths(environment::lib_path(), "astra.toml");
-#endif
+        const auto orbbec_sdk_dir = std::getenv("ORBBEC_SDK_DIR");
+
+        const std::string configPath = filesystem::combine_paths(orbbec_sdk_dir, "astra.toml");
 
         std::unique_ptr<configuration> config(configuration::load_from_file(configPath.c_str()));
-        initialize_logging(logPath.c_str(), config->severityLevel(), config->consoleOutput(), config->fileOutput());
+        initialize_logging(config->fileLogPath().c_str(), config->severityLevel(), config->consoleOutput(), config->fileOutput());
 
         LOG_WARN("context", "Hold on to yer butts");
         LOG_INFO("context", "configuration path: %s", configPath.c_str());
-        LOG_INFO("context", "log file path: %s", logPath.c_str());
+        LOG_INFO("context", "log file path: %s", config->fileLogPath().c_str());
 
         pluginManager_ = astra::make_unique<plugin_manager>(setCatalog_);
 
-#if !__ANDROID__
-        std::string pluginsPath = filesystem::combine_paths(environment::lib_path(),
+        std::string pluginsPath = filesystem::combine_paths(orbbec_sdk_dir,
                                                             filesystem::append_path_separator(config->pluginsPath()));
 
         LOG_INFO("context", "plugin path: %s", pluginsPath.c_str());
 
         pluginManager_->load_plugins(pluginsPath);
-#else
-        pluginManager_->load_plugin("libopenni_sensor.so");
-        pluginManager_->load_plugin("liborbbec_hand.so");
-        pluginManager_->load_plugin("liborbbec_xs.so");
-#endif
-
         if (pluginManager_->plugin_count() == 0)
         {
             LOG_WARN("context", "Astra found no plugins. Is there a Plugins folder? Is the working directory correct?");
         }
+        LOG_INFO("context", "plugins_counts: %s", std::to_string(pluginManager_->plugin_count()).c_str());
 
         initialized_ = true;
 
@@ -185,7 +177,6 @@ namespace astra {
         assert(reader != nullptr);
 
         stream_reader* actualReader = stream_reader::get_ptr(reader);
-        std::cout << "reader con: " << actualReader << std::endl;
         astra_stream_desc_t desc {7, DEFAULT_SUBTYPE};
         actualReader->get_stream(desc);
         if (actualReader)

@@ -53,5 +53,3 @@ message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
 
 add_subdirectory(c-api)
 add_subdirectory(cpp-api)
-
-add_subdirectory(sfml)

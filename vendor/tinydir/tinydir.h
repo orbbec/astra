@@ -131,7 +131,11 @@ int tinydir_open(tinydir_dir *dir, const char *path)
 
 	/* read first file */
 	dir->has_next = 1;
-
+	dir->_e = readdir(dir->_d);
+	if (dir->_e == NULL)
+	{
+		dir->has_next = 0;
+	}
 	return 0;
 
 bail:
@@ -287,6 +291,10 @@ int tinydir_readfile(const tinydir_dir *dir, tinydir_file *file)
 		dir->_e->d_name
 	);
 	strcat(file->path, file->name);
+	if (stat(file->path, &file->_s) == -1)	
+	{	
+		return -1;	
+	}
 	_tinydir_get_ext(file);
 
 	file->is_dir =

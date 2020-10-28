@@ -115,7 +115,9 @@ namespace astra {
                    pluginFuncs.initialize,
                    pluginFuncs.terminate,
                    pluginFuncs.update);
-
+            std::cout << "pluginFuncs.initialize" << pluginFuncs.initialize << std::endl;
+            std::cout << "pluginFuncs.terminate" << pluginFuncs.terminate << std::endl;
+            std::cout << "pluginFuncs.update" << pluginFuncs.update << std::endl;
             process::free_library(libHandle);
         }
     }

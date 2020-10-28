@@ -24,6 +24,10 @@ add_definitions(-DASTRA_BUILD)
 
 find_library(OpenNI2_LIBRARY NAMES "libOpenNI2.so" HINTS "$ENV{OPENNI2_REDIST}" PATH_SUFFIXES lib)
 
+if (NOT OpenNI2_LIBRARY)
+  set(OpenNI2_LIBRARY "/astra/vendor/openni2/ubuntu-x64/libOpenNI2.so")
+endif()
+
 #extend the rpath to include the openni2 subdirectory
 set(CMAKE_INSTALL_RPATH "$ORIGIN/..;$ORIGIN/openni2")
 

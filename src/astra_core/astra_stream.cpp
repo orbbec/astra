@@ -23,6 +23,7 @@
 #include <algorithm>
 #include "astra_stream_listener.hpp"
 
+#include <iostream>
 namespace astra {
 
     stream::stream(astra_stream_desc_t description)
@@ -138,8 +139,16 @@ namespace astra {
                                astra_parameter_id id,
                                astra_parameter_bin_t& parameterBin)
     {
-        if (is_available())
-            on_get_parameter(connection, id, parameterBin);
+      if (is_available())
+      {
+        std::cout << "avalible" << std::endl;
+        on_get_parameter(connection, id, parameterBin);
+      }
+      else
+      {
+        std::cout << "avalible" << std::endl;
+
+      }
     }
 
     void stream::invoke(stream_connection* connection,

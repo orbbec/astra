@@ -87,6 +87,7 @@ namespace orbbec { namespace ni {
                                        astra_parameter_id id,
                                        astra_parameter_bin_t& parameterBin)
     {
+      std::cout << "funck" << std::endl;
         PROFILE_FUNC();
         switch (id)
         {
