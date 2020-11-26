@@ -2,16 +2,6 @@ cmake_minimum_required (VERSION 3.2)
 
 project (Astra)
 
-if (ANDROID)
-  set(ASTRA_ANDROID TRUE)
-elseif (WIN32)
-  set(ASTRA_WINDOWS TRUE)
-elseif (APPLE)
-  set(ASTRA_OSX TRUE)
-elseif (UNIX) #not android
-  set(ASTRA_UNIX TRUE)
-endif()
-
 # Version
 string (TIMESTAMP BUILD_DATE "%Y%m%dT%H%M%SZ" UTC)
 set (Astra_VERSION_MAJOR 0)
@@ -19,33 +9,10 @@ set (Astra_VERSION_MINOR 5)
 set (Astra_VERSION_PATCH 0)
 set (Astra_VERSION_BUILD 0)
 
-if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  set(ASTRA_CLANG ON)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(ASTRA_GCC ON)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-  set(ASTRA_INTELC ON)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  set(ASTRA_MSVC ON)
-endif()
-
-if (NOT ASTRA_MSVC)
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-  CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-endif()
-
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(ASTRA_64 ON)
 else()
   set(ASTRA_32 ON)
-endif()
-
-if (ASTRA_MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
-  MESSAGE("CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
-  MESSAGE("CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
 endif()
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -54,50 +21,19 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-if(ASTRA_GCC OR ASTRA_CLANG)
+set(ASTRA_CXX_FLAGS "-Wall -fPIC -std=c++17")
 
-  set(ASTRA_CXX_FLAGS "-Wall -fPIC")
-  if (COMPILER_SUPPORTS_CXX14)
-    set(ASTRA_CXX_FLAGS "${ASTRA_CXX_FLAGS} -std=c++14")
-  elseif(COMPILER_SUPPORTS_CXX11)
-    set(ASTRA_CXX_FLAGS "${ASTRA_CXX_FLAGS} -std=c++11")
-  endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ASTRA_CXX_FLAGS}")
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ASTRA_CXX_FLAGS}")
-
-  message("flags ${CMAKE_CXX_FLAGS}")
-
-  if(ASTRA_ANDROID)
-    set(ANDROID_CXX_FLAGS "${ANDROID_CXX_FLAGS} ${ASTRA_CXX_FLAGS}")
-  endif()
-
-endif()
+message("flags ${CMAKE_CXX_FLAGS}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(ASTRA_DOCS FALSE CACHE BOOL "Build documentation")
 set(ASTRA_XS TRUE CACHE BOOL "Build extra stream support plugin")
 set(ASTRA_HAND TRUE CACHE BOOL "Build hand tracking plugin")
-set(ASTRA_STREAMPLAYER FALSE CACHE BOOL "Build experimental stream playback plugin (not working)")
-set(ASTRA_MOCK_DEVICE FALSE CACHE BOOL "Build mock test device plugin")
-set(ASTRA_SKELETON FALSE CACHE BOOL "Build experimental skeleton support (not working)")
 
-if (ASTRA_EXPERIMENTAL)
-  set(ASTRA_STREAMPLAYER TRUE)
-  set(ASTRA_MOCK_DEVICE TRUE)
-  set(ASTRA_SKELETON TRUE)
-endif()
-
-if (ASTRA_DOCS)
-  add_subdirectory(docs)
-endif()
-
-if(ASTRA_ANDROID)
-  find_host_package(CLISP REQUIRED)
-else()
-  find_package(CLISP REQUIRED)
-endif()
+find_package(CLISP REQUIRED)
 
 #Override FindAstra equivalents
 set(ASTRA_SDK_BUILD TRUE)
@@ -124,6 +60,11 @@ set(SHINY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/shinyprofiler/include"
   INTERNAL
   "Path to include folder for Shiny")
 
+set(EASYLOGGINGPP_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/easyloggingpp"  
+  CACHE 
+  INTERNAL  
+  "Path to include folder for easylogging++")
+  
 set(CATCH_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/catch/include"
   CACHE
   INTERNAL
@@ -138,11 +79,6 @@ set(CPPTOML_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/cpptoml"
   CACHE
   INTERNAL
   "Path to include folder for cpptoml")
-
-set(EASYLOGGINGPP_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/vendor/easyloggingpp"
-  CACHE
-  INTERNAL
-  "Path to include folder for easylogging++")
 
 if (ASTRA_64)
   set(SAMPLE_DEPENDENCY_DIR "copy_to_bin64_dir")
@@ -248,15 +184,12 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/samples
   PATTERN ".gitignore" EXCLUDE
   PATTERN "samples/scripts" EXCLUDE
   PATTERN "samples/plugins/orbbec_skeleton" EXCLUDE
-  PATTERN "samples/sfml/SimpleSkeletonViewer-SFML" EXCLUDE
   PATTERN "samples/tools/StreamRecorder" EXCLUDE
   )
 
-if (ASTRA_UNIX)
-  install(DIRECTORY ${PROJECT_SOURCE_DIR}/install
-    DESTINATION .
-    )
-endif()
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/install
+  DESTINATION .
+  )
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/cmake
   DESTINATION samples
@@ -359,10 +292,6 @@ elseif(system_name_lower STREQUAL "windows")
   message("Setting CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 endif()
 
-if (WIN32)
-  set(CPACK_GENERATOR "ZIP")
-else()
-  set(CPACK_GENERATOR "TGZ")
-endif()
+set(CPACK_GENERATOR "TGZ")
 
 INCLUDE(CPack)

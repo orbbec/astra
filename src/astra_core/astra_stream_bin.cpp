@@ -16,6 +16,7 @@
 // Be excellent to each other.
 #include "astra_stream_bin.hpp"
 #include <cassert>
+#include <cstring>
 #include <astra_core/capi/plugins/astra_plugin.h>
 
 namespace astra {
@@ -54,7 +55,7 @@ namespace astra {
         frame.byteLength = bufferLengthInBytes;
         frame.frameIndex = -1;
         frame.data = new uint8_t[bufferLengthInBytes];
-        memset(frame.data, 0, bufferLengthInBytes);
+        std::memset(frame.data, 0, bufferLengthInBytes);
     }
 
     void stream_bin::deinit_buffer(astra_frame_t& frame)

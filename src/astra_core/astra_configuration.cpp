@@ -56,6 +56,7 @@ namespace astra {
         set_severityLevel(ASTRA_SEVERITY_INFO);
         set_consoleOutput(false);
         set_fileOutput(false);
+        set_fileLogPath("/sm3/vision_dumps/devices_logs/orbbec/orbbec.log");
     }
 
     configuration* configuration::load_from_file(const char* tomlFilePath)
@@ -107,6 +108,17 @@ namespace astra {
             {
                 config->set_pluginsPath(pluginsPath);
             }
+        }
+
+        const char* fileLogsPathKey = "logging.filepath";
+        if (t.contains_qualified(fileLogsPathKey))
+        {
+          auto fileLogsPath = t.get_qualified(fileLogsPathKey)->as<std::string>()->get();
+
+          if (fileLogsPath.length() > 0)
+          {
+            config->set_fileLogPath(fileLogsPath);
+          }
         }
 
         return config;

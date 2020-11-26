@@ -199,16 +199,6 @@ if(NOT DEFINED PROTOBUF_GENERATE_CPP_APPEND_PATH)
   set(PROTOBUF_GENERATE_CPP_APPEND_PATH TRUE)
 endif()
 
-
-# Google's provided vcproj files generate libraries with a "lib"
-# prefix on Windows
-if(MSVC)
-    set(PROTOBUF_ORIG_FIND_LIBRARY_PREFIXES "${CMAKE_FIND_LIBRARY_PREFIXES}")
-    set(CMAKE_FIND_LIBRARY_PREFIXES "lib" "")
-
-    find_path(PROTOBUF_SRC_ROOT_FOLDER protobuf.pc.in)
-endif()
-
 # The Protobuf library
 _protobuf_find_libraries(PROTOBUF protobuf)
 #DOC "The Google Protocol Buffers RELEASE Library"
@@ -219,13 +209,7 @@ _protobuf_find_libraries(PROTOBUF_LITE protobuf-lite)
 _protobuf_find_libraries(PROTOBUF_PROTOC protoc)
 
 # Restore original find library prefixes
-if(MSVC)
-    set(CMAKE_FIND_LIBRARY_PREFIXES "${PROTOBUF_ORIG_FIND_LIBRARY_PREFIXES}")
-endif()
-
-if(UNIX)
-    _protobuf_find_threads()
-endif()
+_protobuf_find_threads()
 
 # Find the include directory
 find_path(PROTOBUF_INCLUDE_DIR

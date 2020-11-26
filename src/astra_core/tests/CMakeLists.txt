@@ -1,12 +1,7 @@
 set (_projname "astra-core-tests")
 
-if(ASTRA_OSX)
-  set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
-  message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
-elseif(ASTRA_UNIX)
-  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-  message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
-endif()
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+message("Setting rpath to ${CMAKE_INSTALL_RPATH}")
 
 set(${_projname}_TESTS
   signal_tests.cpp)

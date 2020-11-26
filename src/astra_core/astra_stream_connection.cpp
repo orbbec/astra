@@ -194,7 +194,10 @@ namespace astra {
         astra_parameter_bin_t parameterBinHandle = nullptr;
         stream_->get_parameter(this, id, parameterBinHandle);
 
-        assert(parameterBinHandle != nullptr);
+        if (parameterBinHandle == nullptr)
+        {
+            throw std::runtime_error("stream_connection::get_parameter: parameter handler is null");
+        }
         cache_parameter_bin_token(parameterBinHandle, resultByteLength, token);
     }
 

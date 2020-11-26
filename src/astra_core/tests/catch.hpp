@@ -1406,14 +1406,6 @@ namespace Catch {
 // #included from: catch_platform.h
 #define TWOBLUECUBES_CATCH_PLATFORM_H_INCLUDED
 
-#if defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
-#define CATCH_PLATFORM_MAC
-#elif  defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-#define CATCH_PLATFORM_IPHONE
-#elif defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER)
-#define CATCH_PLATFORM_WINDOWS
-#endif
-
 #include <string>
 
 namespace Catch{
@@ -5931,72 +5923,6 @@ namespace Catch { namespace Detail {
     };
 }}
 
-#if defined ( CATCH_PLATFORM_WINDOWS ) /////////////////////////////////////////
-
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
-#ifdef __AFXDLL
-#include <AfxWin.h>
-#else
-#include <windows.h>
-#endif
-
-namespace Catch {
-namespace {
-
-    class Win32ColourImpl : public Detail::IColourImpl {
-    public:
-        Win32ColourImpl() : stdoutHandle( GetStdHandle(STD_OUTPUT_HANDLE) )
-        {
-            CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
-            GetConsoleScreenBufferInfo( stdoutHandle, &csbiInfo );
-            originalAttributes = csbiInfo.wAttributes;
-        }
-
-        virtual void use( Colour::Code _colourCode ) {
-            switch( _colourCode ) {
-                case Colour::None:      return setTextAttribute( originalAttributes );
-                case Colour::White:     return setTextAttribute( FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
-                case Colour::Red:       return setTextAttribute( FOREGROUND_RED );
-                case Colour::Green:     return setTextAttribute( FOREGROUND_GREEN );
-                case Colour::Blue:      return setTextAttribute( FOREGROUND_BLUE );
-                case Colour::Cyan:      return setTextAttribute( FOREGROUND_BLUE | FOREGROUND_GREEN );
-                case Colour::Yellow:    return setTextAttribute( FOREGROUND_RED | FOREGROUND_GREEN );
-                case Colour::Grey:      return setTextAttribute( 0 );
-
-                case Colour::LightGrey:     return setTextAttribute( FOREGROUND_INTENSITY );
-                case Colour::BrightRed:     return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_RED );
-                case Colour::BrightGreen:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN );
-                case Colour::BrightWhite:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
-
-                case Colour::Bright: throw std::logic_error( "not a colour" );
-            }
-        }
-
-    private:
-        void setTextAttribute( WORD _textAttribute ) {
-            SetConsoleTextAttribute( stdoutHandle, _textAttribute );
-        }
-        HANDLE stdoutHandle;
-        WORD originalAttributes;
-    };
-
-    inline bool shouldUseColourForPlatform() {
-        return true;
-    }
-
-    static Detail::IColourImpl* platformColourInstance() {
-        static Win32ColourImpl s_instance;
-        return &s_instance;
-    }
-
-} // end anon namespace
-} // end namespace Catch
-
-#else // Not Windows - assumed to be POSIX compatible //////////////////////////
-
 #include <unistd.h>
 
 namespace Catch {
@@ -6044,8 +5970,6 @@ namespace {
 
 } // end anon namespace
 } // end namespace Catch
-
-#endif // not Windows
 
 namespace Catch {
 
@@ -6743,89 +6667,14 @@ namespace Catch {
 
 #include <iostream>
 
-#ifdef CATCH_PLATFORM_MAC
+namespace Catch {
+   inline bool isDebuggerActive() { return false; }
 
-    #include <assert.h>
-    #include <stdbool.h>
-    #include <sys/types.h>
-    #include <unistd.h>
-    #include <sys/sysctl.h>
-
-    namespace Catch{
-
-        // The following function is taken directly from the following technical note:
-        // http://developer.apple.com/library/mac/#qa/qa2004/qa1361.html
-
-        // Returns true if the current process is being debugged (either
-        // running under the debugger or has a debugger attached post facto).
-        bool isDebuggerActive(){
-
-            int                 mib[4];
-            struct kinfo_proc   info;
-            size_t              size;
-
-            // Initialize the flags so that, if sysctl fails for some bizarre
-            // reason, we get a predictable result.
-
-            info.kp_proc.p_flag = 0;
-
-            // Initialize mib, which tells sysctl the info we want, in this case
-            // we're looking for information about a specific process ID.
-
-            mib[0] = CTL_KERN;
-            mib[1] = KERN_PROC;
-            mib[2] = KERN_PROC_PID;
-            mib[3] = getpid();
-
-            // Call sysctl.
-
-            size = sizeof(info);
-            if( sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0) != 0 ) {
-                std::cerr << "\n** Call to sysctl failed - unable to determine if debugger is active **\n" << std::endl;
-                return false;
-            }
-
-            // We're being debugged if the P_TRACED flag is set.
-
-            return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
-        }
-    } // namespace Catch
-
-#elif defined(_MSC_VER)
-    extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-    namespace Catch {
-        bool isDebuggerActive() {
-            return IsDebuggerPresent() != 0;
-        }
+    void writeToDebugConsole( std::string const& text ) {
+        // !TBD: Need a version for Mac/ XCode and other IDEs
+        std::cout << text;
     }
-#elif defined(__MINGW32__)
-    extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-    namespace Catch {
-        bool isDebuggerActive() {
-            return IsDebuggerPresent() != 0;
-        }
-    }
-#else
-    namespace Catch {
-       inline bool isDebuggerActive() { return false; }
-    }
-#endif // Platform
-
-#ifdef CATCH_PLATFORM_WINDOWS
-    extern "C" __declspec(dllimport) void __stdcall OutputDebugStringA( const char* );
-    namespace Catch {
-        void writeToDebugConsole( std::string const& text ) {
-            ::OutputDebugStringA( text.c_str() );
-        }
-    }
-#else
-    namespace Catch {
-        void writeToDebugConsole( std::string const& text ) {
-            // !TBD: Need a version for Mac/ XCode and other IDEs
-            std::cout << text;
-        }
-    }
-#endif // Platform
+}
 
 // #included from: catch_tostring.hpp
 #define TWOBLUECUBES_CATCH_TOSTRING_HPP_INCLUDED

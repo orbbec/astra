@@ -19,6 +19,7 @@
 #include <algorithm>
 #include "astra_cxx_compatibility.hpp"
 
+#include <iostream>
 namespace astra {
 
     void stream_backend::set_callbacks(const stream_callbacks_t& callbacks)
@@ -125,13 +126,19 @@ namespace astra {
                                          astra_parameter_id id,
                                          astra_parameter_bin_t& parameterBin)
     {
+
         if (callbacks_ &&
             callbacks_->get_parameter_callback != nullptr)
         {
+          std::cout << "on_get_" << std::endl;
             callbacks_->get_parameter_callback(callbacks_->context,
                                                 connection->get_handle(),
                                                 id,
                                                 &parameterBin);
+        }
+        else
+        {
+          std::cout << "false on_get" << std::endl;
         }
     }
 
